@@ -104,4 +104,4 @@ venv.bak/
 .mypy_cache/
 
 # custom
-.json_datasets/
+json_datasets/
