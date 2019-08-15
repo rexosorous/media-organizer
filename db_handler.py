@@ -1,10 +1,16 @@
-# object that handles all database interactions
-
+# handles all database interactions
 
 import peewee
-import filename
+from playhouse import shortcuts
 
-SPECIAL_COLON_CHARACTER = '꞉'   # ASCII value: 42889
+
+
+
+
+
+########################################################
+################# DATABASE TABLE STUFF #################
+########################################################
 
 db = peewee.SqliteDatabase('media.db', pragmas={
     'journal_mode': 'wal',
@@ -57,11 +63,11 @@ class Media(BaseModel):
     alt_title = peewee.CharField(unique=True, null=True)
     series = peewee.ForeignKeyField(Series, backref='sequels', null=True)
     order = peewee.DecimalField(max_digits=2, null=True) # the story's chronological order ex: Star Wars Ep. 1, 2, 3, 4, 5, 6 | NOT 4, 5, 6, 1, 2, 3
-    media_type = peewee.ForeignKeyField(MediaTypes, backref='media') # movie | tv show | other?
+    media_type = peewee.ForeignKeyField(MediaTypes, backref='media') # movie | tv show | etc
     animated = peewee.BooleanField()
-    country = peewee.ForeignKeyField(Countries, backref='media') # japanese | western | chinese | etc
+    country = peewee.ForeignKeyField(Countries, backref='media') # USA | UK | Japan | etc
     language = peewee.ManyToManyField(Languages, backref='media')
-    subtitles = peewee.BooleanField(default=False)
+    subtitles = peewee.BooleanField(null = True)
     year = peewee.IntegerField(constraints=[peewee.Check('year > 1900')], null=True) # release year
     genres = peewee.ManyToManyField(Genres, backref='media')
     director = peewee.ForeignKeyField(Directors, backref='media', null=True)
@@ -82,13 +88,158 @@ def create_tables():
     MediaTags = Media.tags.get_through_model()
     with db:
         db.create_tables([Media, Series, MediaTypes, Countries, Languages, Directors, Studios, Genres, Actors, Tags, MediaLanguage, MediaGenres, MediaActors, MediaTags])
-exit
 
-def create_director(director: str):
-    Directors.insert(name=director)
 
-def create_actors(actor: str):
-    Actors.insert(name=actor)
+
+
+
+
+
+
+
+
+
+
+
+
+########################################################
+################### USABLE FUNCTIONS ###################
+########################################################
+
+TABLES = { # used to select the right field class
+    'Series': Series,
+    'MediaTypes': MediaTypes,
+    'Countries': Countries,
+    'Languages': Languages,
+    'Directors': Directors,
+    'Studios': Studios,
+    'Genres': Genres,
+    'Actors': Actors,
+    'Tags': Tags,
+    'Media': Media
+}
+
+
+def get(table: str, kwargs: dict):
+    # returns an entry object from table=table with name=name
+    # kwargs is a dict where keys are keywords
+
+    # NOTE: this will probably be removed because the GUI portion will take care of this
+    return TABLES[table].get(**kwargs)
+
+
+
+def get_dict(media) -> dict:
+    # finds a media entry and converts its info into a readable dictionary
+    d = shortcuts.model_to_dict(media, manytomany=True)
+    foreign = ['series', 'media_type', 'country', 'director', 'studio']
+    mtm = ['language', 'genres', 'actors', 'tags']
+    for field in foreign:
+        if d[field]:
+            d[field] = d[field]['name']
+    for field in mtm:
+        if d[field]:
+            d[field] = [f['name'] for f in d[field]]
+    return d
+
+
+
+def check_exists(table: str, torn: str) -> bool: # torn = Title OR Name
+    # checks if a media entry with title already exists
+    if len(TABLES[table].select().where(
+        (TABLES[table].title if table == 'Media' else TABLES[table].name) # decide whether to use title or name
+        ==torn)) == 0:
+        return False
+    return True
+
+
+
+def delete_media(media):
+    # properly deletes a media entry
+    media.language.clear() # clear statements are needed for ManyToManyField
+    media.genres.clear()
+    media.actors.clear()
+    media.tags.clear()
+    media.delete_instance()
+
+
+
+def delete_field(field: dict, set_to: dict):
+    # properly deletes a non-media entry
+    pass
+
+
+
+def enter(basic_info: dict, mtm_info = {}):
+    # enters in a media entry using info dict to fill fields
+    # note 1: info dict MUST have the following fields: title, media_type, animated, country, subtitles
+    # note 2: info dict can have missing fields that are not in the above
+    # note 3: info dict must have database gets as values
+    # note 4: mtm_info dict is optional values must be lists of database gets
+
+    # TODO
+    #   find a better way to handle mtm fields
+
+    try:
+        m = Media.create(**basic_info)
+
+        mtm_fields = { # many to many fields
+            'language': m.language,
+            'genres': m.genres,
+            'actors': m.actors,
+            'tags': m.tags
+        }
+
+        for key in mtm_info:
+            mtm_fields[key].add(mtm_info[key])
+
+        m.save()
+    except peewee.IntegrityError:
+        # used to catch instances where media is created without the required fields
+        required = ['Title', 'Media Type', 'Animated', 'Country', 'Subtitles']
+        print(f"The following fields were left empty:\n {[field for field in required if required not in basic_info.keys()]}")
+
+
+
+def create(table: str, name: str):
+    # creates a non-media entry
+    TABLES[table].insert(name=name).execute()
+
+
+
+def edit(selection, basic_info: dict, mtm_info = {}):
+    # edits a selected piece of media and updates it with new info
+    # see notes about info dict and mtm_info dict in the above enter function
+    Media.update(**basic_info).where(Media.id==selection.id).execute() # is this the best way to to do this?
+
+    mtm_fields = { # many to many fields
+        'language': selection.language,
+        'genres': selection.genres,
+        'actors': selection.actors,
+        'tags': selection.tags
+    }
+
+
+    # currently only supports adding mtm values, but not deleting
+    # when there is a functioning gui, change to clear all mtm fields that we want to edit and repopulate
+    for key in mtm_info:
+        mtm_fields[key].add(mtm_info[key])
+
+    selection.save()
+
+
+
+
+
+
+
+
+
+
+########################################################
+##################### BATCH ENTRY ######################
+########################################################
+# TODO - don't repeat code and try to consolidate enter_imdb and enter_mal into one function
 
 def enter_imdb(batch: [dict]):
     # for mass inputting movies scraped from imdb
@@ -126,6 +277,8 @@ def enter_imdb(batch: [dict]):
             m.save()
         except:
             print(f"{film['title']} - error in initial setup")
+
+
 
 def enter_mal(batch: [list]):
     # for mass inputting anime scraped from myanimelist using mal_scraper.py
@@ -172,25 +325,6 @@ def enter_mal(batch: [list]):
 
         except:
             print(f"{basic['title']} - error in initial setup")
-
-
-
-def fix_imdb(batch: [dict]):
-    directors_list = [d.name for d in Directors.select()]
-
-    for film in batch:
-        try:
-            m = Media.get(title=film['title'])
-
-            try:
-                if film['directors'][0] in directors_list:
-                    m.director = Directors.get(name=film['directors'][0])
-            except:
-                print(f"{film['title']} - error adding director")
-
-            m.save()
-        except:
-            print(f"{film['title']} - error in initial setup")
 
 
 # def wipe():
