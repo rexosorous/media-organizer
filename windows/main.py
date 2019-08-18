@@ -19,7 +19,7 @@ class Main():
 
 
     def resize_columns(self):
-        self.window.table.setColumnWidth(0, 300)     # title
+        self.window.table.setColumnWidth(0, 200)     # title
         self.window.table.setColumnWidth(1, 200)     # alt title
         self.window.table.setColumnWidth(2, 200)     # series
         self.window.table.setColumnWidth(3, 25)      # order
