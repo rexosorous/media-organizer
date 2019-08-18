@@ -144,6 +144,20 @@ def get_dict(media) -> dict:
 
 
 
+def get_all(table: str) -> [str]:
+    return [x.name for x in globals()[table].select()]          # AHHHHHHHHHHHHHH
+
+
+
+def get_table() -> [dict]:
+    # gets information on every piece of media in the database and returns it as a list of dicts
+    table = []
+    for entry in Media.select():
+        table.append(get_dict(entry))
+    return table
+
+
+
 def check_exists(table: str, torn: str) -> bool: # torn = Title OR Name
     # checks if a media entry with title already exists
     if len(TABLES[table].select().where(
@@ -218,7 +232,6 @@ def edit(selection, basic_info: dict, mtm_info = {}):
         'actors': selection.actors,
         'tags': selection.tags
     }
-
 
     # currently only supports adding mtm values, but not deleting
     # when there is a functioning gui, change to clear all mtm fields that we want to edit and repopulate
