@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets, QtCore
 import db_handler as db
 import ui.edit_ui as edit_ui
+from functools import partial
 
 
 
@@ -11,7 +12,46 @@ class Edit():
         self.window.setupUi(self.EditWindow)
         self.vars = vars(self.window)
 
+        self.create_menus()
+
         self.title = '' # holds the original title of the movie because user might change it
+
+
+
+    def create_menus(self):
+        # creates drop down menus for search bars
+        with_clear = ['series', 'studio', 'director', 'media_type', 'studio']
+        self.window.series_button.setMenu(QtWidgets.QMenu(self.window.series_button))
+        self.window.series_button.menu().addAction(QtWidgets.QAction('Create', self.window.series_button))
+        self.window.series_button.menu().addAction(QtWidgets.QAction('Clear', self.window.series_button))
+        self.window.series_button.menu().triggered[QtWidgets.QAction].connect(partial(self.filter_menu, self.window.series_list))
+
+
+
+    def filter_menu(self, source, field):
+        # filters which button is pressed in the drop down menu
+        if source.text == 'Create':
+            self.create_field(field)
+        elif source.text == 'Clear':
+            self.deselect(field)
+
+
+
+    def create_field(self, field):
+        # creates a new field entry in db
+        pass
+
+
+
+    def deselect(self, source):
+        # deselects an item in listwidget
+        source.currentItem().setSelected(False)
+
+
+
+    def show_toolbar(self):
+        self.window.series_button.showMenu()
+
 
 
     def populate(self):
@@ -22,17 +62,13 @@ class Edit():
         self.window.director_list.addItems(db.get_all('Directors'))
         self.window.studio_list.addItems(db.get_all('Studios'))
         self.window.language_list.addItems(db.get_all('Languages'))
+        self.window.media_type_list.addItems(db.get_all('MediaTypes'))
+        self.window.country_list.addItems(db.get_all('Countries'))
 
         # many to many list adds
         self.window.genres_no_list.addItems(db.get_all('Genres'))
         self.window.tags_no_list.addItems(db.get_all('Tags'))
         self.window.actors_no_list.addItems(db.get_all('Actors'))
-
-        # combo box adds
-        # TO DO: sort before adding
-        self.window.media_type.addItems(db.get_all('MediaTypes'))
-        self.window.country.addItems(db.get_all('Countries'))
-
 
         # sorting
         self.window.series_list.setSortingEnabled(True)
@@ -45,6 +81,8 @@ class Edit():
         self.window.tags_no_list.setSortingEnabled(True)
         self.window.actors_yes_list.setSortingEnabled(True)
         self.window.actors_no_list.setSortingEnabled(True)
+        self.window.media_type_list.setSortingEnabled(True)
+        self.window.country_list.setSortingEnabled(True)
 
 
 
@@ -59,8 +97,6 @@ class Edit():
         self.window.year.clear()
         self.window.plot.clear()
         self.window.notes.clear()
-        self.window.media_type.clear()
-        self.window.country.clear()
 
         # lists
         self.window.series.clear()
@@ -71,6 +107,10 @@ class Edit():
         self.window.studio_list.clear()
         self.window.language.clear()
         self.window.language_list.clear()
+        self.window.media_type.clear()
+        self.window.media_type_list.clear()
+        self.window.country.clear()
+        self.window.country_list.clear()
 
         # mtm lists
         self.window.genres_yes.clear()
@@ -110,7 +150,7 @@ class Edit():
         for key in selection:
             if key in ['title', 'alt_title', 'order', 'year', 'plot', 'notes']: # text fields
                 self.vars[key].setText(selection[key])
-            elif key in ['series', 'director', 'studio']: # lists
+            elif key in ['series', 'director', 'studio', 'media_type', 'country']: # lists
                 field = key + '_list'
                 highlight = self.vars[field].findItems(selection[key], QtCore.Qt.MatchExactly)
                 if len(highlight) == 1:
@@ -132,8 +172,6 @@ class Edit():
                 if selection[key] == 'True':
                     field = key + '_yes'
                 self.vars[field].setChecked(True)
-            elif key in ['media_type', 'country']:
-                self.vars[key].setCurrentIndex(self.vars[key].findText(selection[key], QtCore.Qt.MatchExactly))
             elif key in ['genres', 'actors', 'tags']:
                 transfer = selection[key].split(', ')
                 field_no = key + '_no_list'
@@ -171,8 +209,7 @@ class Edit():
 
     def list_filter(self, source, text):
         # filters through a list based on what is typed in the textbox
-        src_name = source.objectName() + '_list'
-        field = self.vars[src_name]
+        field = self.to_list(source)
         contents = [field.item(index).text() for index in range(field.count())]
         for item in contents:
             if text.lower() in item.lower():
@@ -211,3 +248,26 @@ class Edit():
                 break
 
         return data
+
+
+
+    def select_top(self, source):
+        # after pressing enter, selects the topmost item
+        field = self.to_list(source)
+        print(field.item(0).text())
+
+
+
+
+
+
+
+
+
+
+
+
+    def to_list(self, source):
+        # converts a source to its list counterpart
+        src_name = source.objectName() + '_list'
+        return self.vars[src_name]

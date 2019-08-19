@@ -7,7 +7,16 @@ import sys
 
 
 ''' TODO
+    deselect
+    pressing enter in search bar selects first result
+    allow adding of non-media entries
     batch editing
+    when changing media type, move file using shutil (can use relative directories)
+    double clicking opens file or location (set as config)
+    handle new entries
+    scan for deleted media
+    settings to allow which columns are shown
+    configs
 '''
 
 
@@ -48,19 +57,22 @@ class GUI:
 
     def connect_events(self):
         # connects all the events to functions
+        # note: partial() allows us to send the source of the event
 
         # buttons
         self.main.window.edit_button.clicked.connect(self.edit_show)
         self.edit.window.submit.clicked.connect(self.submit_edit)
 
         # list double clicks
-        # note: partial() allows us to send the source of the event
         self.edit.window.genres_yes_list.doubleClicked.connect(partial(self.edit.list_transfer, self.edit.window.genres_yes_list))
         self.edit.window.genres_no_list.doubleClicked.connect(partial(self.edit.list_transfer, self.edit.window.genres_no_list))
         self.edit.window.actors_yes_list.doubleClicked.connect(partial(self.edit.list_transfer, self.edit.window.actors_yes_list))
         self.edit.window.actors_no_list.doubleClicked.connect(partial(self.edit.list_transfer, self.edit.window.actors_no_list))
         self.edit.window.tags_yes_list.doubleClicked.connect(partial(self.edit.list_transfer, self.edit.window.tags_yes_list))
         self.edit.window.tags_no_list.doubleClicked.connect(partial(self.edit.list_transfer, self.edit.window.tags_no_list))
+
+        # list right clicks
+        # self.edit.window.genres_yes_list.rightClicked.connect(partial(self.edit.deselect, self.edit.window.genres_yes_list))
 
         # search bars
         self.edit.window.genres_yes.textChanged.connect(partial(self.edit.list_filter, self.edit.window.genres_yes))
@@ -73,6 +85,14 @@ class GUI:
         self.edit.window.director.textChanged.connect(partial(self.edit.list_filter, self.edit.window.director))
         self.edit.window.series.textChanged.connect(partial(self.edit.list_filter, self.edit.window.series))
         self.edit.window.language.textChanged.connect(partial(self.edit.list_filter, self.edit.window.language))
+        self.edit.window.media_type.textChanged.connect(partial(self.edit.list_filter, self.edit.window.media_type))
+        self.edit.window.country.textChanged.connect(partial(self.edit.list_filter, self.edit.window.country))
+
+
+        self.edit.window.series.returnPressed.connect(partial(self.edit.select_top, self.edit.window.series))
+
+
+        self.edit.window.series_button.clicked.connect(self.edit.show_toolbar)
 
 
 
