@@ -2,7 +2,7 @@
 
 import peewee
 from playhouse import shortcuts
-
+import config as cfg
 
 
 
@@ -119,8 +119,52 @@ TABLES = { # used to select the right field class
     'Media': Media
 }
 
+FIELD_TO_TABLE = {
+    'series': 'Series',
+    'media_type': 'MediaTypes',
+    'country': 'Countries',
+    'language': 'Languages',
+    'director': 'Directors',
+    'studio': 'Studios',
+    'genres': 'Genres',
+    'actors': 'Actors',
+    'tags': 'Tags',
+}
 
-def get(table: str, kwargs: dict):
+
+
+
+
+def dict_fixer(data: dict) -> [dict, dict]:
+    # splits up a dictionary into basic and mtm dicts and sets the values to entry objects
+    basic = {}
+    mtm = {}
+
+    for key in data:
+        if key in cfg.SIMPLE:
+            basic[key] = data[key]
+        elif key in cfg.FOREIGN:
+            basic[key] = get(FIELD_TO_TABLE[key], data[key]) if data[key] else None
+        elif key in cfg.MTM:
+            mtm[key] = [get(FIELD_TO_TABLE[key], val) for val in data[key].split(', ')] if data[key] else None
+
+    return [basic, mtm]
+
+
+
+def get(table: str, torn: str): # torn = Title OR Name
+    # returns an entry object from table = table with title or name = torn
+    try:
+        if table == 'Media':
+            return Media.get(title=torn)
+        return globals()[table].get(name=torn)
+    except:
+        print(f'could not find {torn} in {table}, setting to None')
+        return None
+
+
+
+def get_detailed(table: str, kwargs: dict):
     # returns an entry object from table=table with name=name
     # kwargs is a dict where keys are keywords
 
@@ -131,6 +175,9 @@ def get(table: str, kwargs: dict):
 
 def get_dict(media) -> dict:
     # finds a media entry and converts its info into a readable dictionary
+    if type(media) is str: # allows for passing by entry object or title
+        media = get('Media', media)
+
     d = shortcuts.model_to_dict(media, manytomany=True)
     foreign = ['series', 'media_type', 'country', 'director', 'studio']
     mtm = ['language', 'genres', 'actors', 'tags']
@@ -140,6 +187,10 @@ def get_dict(media) -> dict:
     for field in mtm:
         if d[field]:
             d[field] = [f['name'] for f in d[field]]
+    if d['order']:
+        d['order'] = float(d['order'])
+
+    del d['id']
     return d
 
 
@@ -168,12 +219,18 @@ def check_exists(table: str, torn: str) -> bool: # torn = Title OR Name
 
 
 
-def delete_media(media):
-    # properly deletes a media entry
-    media.language.clear() # clear statements are needed for ManyToManyField
+def clear_mtm(media):
+    # clears relationships between media and manytomany fields
+    media.language.clear()
     media.genres.clear()
     media.actors.clear()
     media.tags.clear()
+
+
+
+def delete_media(media):
+    # properly deletes a media entry
+    clear_mtm(media)
     media.delete_instance()
 
 
@@ -221,26 +278,25 @@ def create(table: str, name: str):
 
 
 
-def edit(selection, basic_info: dict, mtm_info = {}):
-    # edits a selected piece of media and updates it with new info
+def update(title: str, info: dict):
+    # updates a selected piece of media and updates it with new info
     # see notes about info dict and mtm_info dict in the above enter function
-    Media.update(**basic_info).where(Media.id==selection.id).execute() # is this the best way to to do this?
+    basic_info, mtm_info = dict_fixer(info)
+    Media.update(**basic_info).where(Media.title==title).execute() # is this the best way to to do this?
+    selected = get('Media', info['title'])
 
-    mtm_fields = { # many to many fields
-        'language': selection.language,
-        'genres': selection.genres,
-        'actors': selection.actors,
-        'tags': selection.tags
+    mtm_fields = {
+        'language': selected.language,
+        'genres': selected.genres,
+        'actors': selected.actors,
+        'tags': selected.tags
     }
 
-    # currently only supports adding mtm values, but not deleting
-    # when there is a functioning gui, change to clear all mtm fields that we want to edit and repopulate
-    for key in mtm_info:
-        mtm_fields[key].add(mtm_info[key])
+    clear_mtm(selected)
+    for field in mtm_info:
+        mtm_fields[field].add(mtm_info[field])
 
-    selection.save()
-
-
+    selected.save()
 
 
 

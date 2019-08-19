@@ -5,11 +5,13 @@ import ui.edit_ui as edit_ui
 
 
 class Edit():
-    def __init__(self, app):
+    def __init__(self):
         self.EditWindow = QtWidgets.QMainWindow()
         self.window = edit_ui.Ui_edit_window()
         self.window.setupUi(self.EditWindow)
         self.vars = vars(self.window)
+
+        self.title = '' # holds the original title of the movie because user might change it
 
 
     def populate(self):
@@ -48,6 +50,8 @@ class Edit():
 
     def clear(self):
         # clears all the fields in the edit screen
+        self.title = None
+
         # basic
         self.window.title.clear()
         self.window.alt_title.clear()
@@ -101,6 +105,8 @@ class Edit():
         self.clear()
         self.populate()
 
+        self.title = selection['title']
+
         for key in selection:
             if key in ['title', 'alt_title', 'order', 'year', 'plot', 'notes']: # text fields
                 self.vars[key].setText(selection[key])
@@ -110,10 +116,11 @@ class Edit():
                 if len(highlight) == 1:
                     self.vars[field].setCurrentItem(highlight[0])
             elif key == 'language': # multi select lists
-                langs = selection['language'].split(', ')    # languages is a many to many field
-                for lang in langs:
-                    highlight = self.window.language_list.findItems(lang, QtCore.Qt.MatchExactly)
-                    highlight[0].setSelected(True)
+                if selection['language']:
+                    langs = selection['language'].split(', ')    # languages is a many to many field
+                    for lang in langs:
+                        highlight = self.window.language_list.findItems(lang, QtCore.Qt.MatchExactly)
+                        highlight[0].setSelected(True)
             elif key == 'rating':
                 try:
                     field = 'rating_' + selection['rating']
@@ -143,6 +150,11 @@ class Edit():
 
 
 
+    def hide(self):
+        # clears all the fields then hides the window
+        self.clear()
+        self.EditWindow.hide()
+
 
 
     def list_transfer(self, source):
@@ -167,3 +179,35 @@ class Edit():
                 field.findItems(item, QtCore.Qt.MatchExactly)[0].setHidden(False)
             else:
                 field.findItems(item, QtCore.Qt.MatchExactly)[0].setHidden(True)
+
+
+
+    def get_dict(self) -> dict:
+        # returns a dict representing the fields in the window
+        data = {
+            'title': self.window.title.displayText(),
+            'alt_title': self.window.alt_title.displayText(),
+            'series': self.window.series_list.currentItem().text() if self.window.series_list.currentItem() else None,
+            'order': float(self.window.order.displayText()) if self.window.order.displayText() else None,
+            'media_type': self.window.media_type.currentText(),
+            'animated': self.window.animated_yes.isChecked(),
+            'country': self.window.country.currentText(),
+            'language': ', '.join([lang.text() for lang in self.window.language_list.selectedItems()]),
+            'subtitles': self.window.subtitles_yes.isChecked(),
+            'year': int(self.window.year.displayText()) if self.window.year.displayText() else None,
+            'genres': ', '.join([self.window.genres_yes_list.item(index).text() for index in range(self.window.genres_yes_list.count())]),
+            'director': self.window.director_list.currentItem().text() if self.window.director_list.currentItem() else None,
+            'studio': self.window.studio_list.currentItem().text() if self.window.studio_list.currentItem() else None,
+            'actors': ', '.join([self.window.actors_yes_list.item(index).text() for index in range(self.window.actors_yes_list.count())]),
+            'plot': self.window.plot.toPlainText(),
+            'rating': None,
+            'tags': ', '.join([self.window.tags_yes_list.item(index).text() for index in range(self.window.tags_yes_list.count())]),
+            'notes': self.window.notes.toPlainText()
+        }
+
+        for index in range(1, 6):
+            if self.vars['rating_' + str(index)].isChecked():
+                data['rating'] = index
+                break
+
+        return data

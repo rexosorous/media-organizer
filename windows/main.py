@@ -5,10 +5,31 @@ import db_handler as db
 
 TABLE_FIELDS = ['title', 'alt_title', 'series', 'order', 'media_type', 'animated', 'country', 'language', 'subtitles', 'year', 'genres', 'director', 'studio', 'actors', 'plot', 'rating', 'tags', 'notes']
 TABLE_COL = 18
+FIELD_NUM = {
+    'title': 0,
+    'alt_title': 1,
+    'series': 2,
+    'order': 3,
+    'media_type': 4,
+    'animated': 5,
+    'country': 6,
+    'language': 7,
+    'subtitles': 8,
+    'year': 9,
+    'genres': 10,
+    'director': 11,
+    'studio': 12,
+    'actors': 13,
+    'plot': 14,
+    'rating': 15,
+    'tags': 16,
+    'notes': 17
+}
+
 
 
 class Main():
-    def __init__(self, app):
+    def __init__(self):
         self.MainWindow = QtWidgets.QMainWindow()
         self.window = main_ui.Ui_main_window()
         self.window.setupUi(self.MainWindow)
@@ -43,34 +64,18 @@ class Main():
     def populate_table(self):
         row = 0
         for entry in db.get_table():
-            if not entry['order']: # if these checks are skipped, 'None' appears in the table
-                entry['order'] = ''
-            if not entry['year']:
-                entry['year'] = ''
-            if not entry['rating']:
-                entry['rating'] = ''
-
             self.window.table.insertRow(row)
-            self.window.table.setItem(row, 0, QtWidgets.QTableWidgetItem(entry['title']))                  # required
-            self.window.table.setItem(row, 1, QtWidgets.QTableWidgetItem(entry['alt_title']))
-            self.window.table.setItem(row, 2, QtWidgets.QTableWidgetItem(entry['series']))
-            self.window.table.setItem(row, 3, QtWidgets.QTableWidgetItem(str(entry['order'])))
-            self.window.table.setItem(row, 4, QtWidgets.QTableWidgetItem(entry['media_type']))             # required
-            self.window.table.setItem(row, 5, QtWidgets.QTableWidgetItem(str(entry['animated'])))          # requried
-            self.window.table.setItem(row, 6, QtWidgets.QTableWidgetItem(entry['country']))                # required
-            self.window.table.setItem(row, 7, QtWidgets.QTableWidgetItem(', '.join(entry['language'])))
-            self.window.table.setItem(row, 8, QtWidgets.QTableWidgetItem(str(entry['subtitles'])))         # required
-            self.window.table.setItem(row, 9, QtWidgets.QTableWidgetItem(str(entry['year'])))
-            self.window.table.setItem(row, 10, QtWidgets.QTableWidgetItem(', '.join(entry['genres'])))
-            self.window.table.setItem(row, 11, QtWidgets.QTableWidgetItem(entry['director']))
-            self.window.table.setItem(row, 12, QtWidgets.QTableWidgetItem(entry['studio']))
-            self.window.table.setItem(row, 13, QtWidgets.QTableWidgetItem(', '.join(entry['actors'])))
-            self.window.table.setItem(row, 14, QtWidgets.QTableWidgetItem(entry['plot']))
-            self.window.table.setItem(row, 15, QtWidgets.QTableWidgetItem(str(entry['rating'])))
-            self.window.table.setItem(row, 16, QtWidgets.QTableWidgetItem(', '.join(entry['tags'])))
-            self.window.table.setItem(row, 17, QtWidgets.QTableWidgetItem(entry['notes']))
-
+            for key in entry:
+                self.window.table.setItem(row, FIELD_NUM[key], QtWidgets.QTableWidgetItem(self.stringify(entry[key])))
             row += 1
+
+
+
+    def update(self, rows: [int], data: dict):
+        # updates entries of table at row with data
+        for row in rows:
+            for key in data:
+                self.window.table.item(row, FIELD_NUM[key]).setText(self.stringify(data[key]))
 
 
 
@@ -80,3 +85,23 @@ class Main():
         for index in range(TABLE_COL):
             data[TABLE_FIELDS[index]] = self.window.table.item(row, index).text()
         return data
+
+
+
+    def stringify(self, data):
+        # table only accepts strings, so we convert non-strings datatypes to output to table
+        if type(data) is list:
+            data = ', '.join(data)
+        elif type(data) in [int, float, bool]:
+            data = str(data)
+        return data
+
+
+
+    def selected_rows(self) -> [int]:
+        # returns a list of all rows highlighted/selected
+        rows = []
+        ranges = [list(range(x.topRow(), x.bottomRow()+1)) for x in self.window.table.selectedRanges()]
+        for group in ranges:
+            rows += group
+        return rows

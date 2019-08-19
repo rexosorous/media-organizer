@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'edit_ui.ui'
+# Form implementation generated from reading ui file 'ui/edit_ui.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #
@@ -47,11 +47,11 @@ class Ui_edit_window(object):
         self.centralwidget.setObjectName("centralwidget")
         self.gridLayout = QtWidgets.QGridLayout(self.centralwidget)
         self.gridLayout.setObjectName("gridLayout")
-        self.confirm = QtWidgets.QPushButton(self.centralwidget)
-        self.confirm.setMinimumSize(QtCore.QSize(50, 50))
-        self.confirm.setMaximumSize(QtCore.QSize(200, 16777215))
-        self.confirm.setObjectName("confirm")
-        self.gridLayout.addWidget(self.confirm, 3, 1, 1, 1)
+        self.submit = QtWidgets.QPushButton(self.centralwidget)
+        self.submit.setMinimumSize(QtCore.QSize(50, 50))
+        self.submit.setMaximumSize(QtCore.QSize(200, 16777215))
+        self.submit.setObjectName("submit")
+        self.gridLayout.addWidget(self.submit, 3, 1, 1, 1)
         self.frame_2 = QtWidgets.QFrame(self.centralwidget)
         self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Sunken)
@@ -657,7 +657,7 @@ class Ui_edit_window(object):
     def retranslateUi(self, edit_window):
         _translate = QtCore.QCoreApplication.translate
         edit_window.setWindowTitle(_translate("edit_window", "Edit"))
-        self.confirm.setText(_translate("edit_window", "Confirm"))
+        self.submit.setText(_translate("edit_window", "Submit"))
         self.label_3.setText(_translate("edit_window", "Series"))
         self.label_4.setText(_translate("edit_window", "Order"))
         self.label_27.setText(_translate("edit_window", "Actors"))
