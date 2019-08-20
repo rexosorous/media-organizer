@@ -235,9 +235,22 @@ def delete_media(media):
 
 
 
-def delete_field(field: dict, set_to: dict):
+def delete_field(field: str, name: str):
     # properly deletes a non-media entry
-    pass
+    entry = get(FIELD_TO_TABLE[field], name)
+    media_vars = vars(Media)
+    if field in cfg.FOREIGN:
+        Media.update(**{field: None}).where(media_vars[field]==entry).execute()
+    elif field in cfg.MTM:
+        for media in entry.media:
+            fields = {
+                'language': media.language,
+                'genres': media.genres,
+                'actors': media.actors,
+                'tags': media.tags
+            }
+            fields[field].remove(entry)
+    entry.delete_instance()
 
 
 

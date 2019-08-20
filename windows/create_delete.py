@@ -99,7 +99,7 @@ class CreateDelete:
 
 
 
-    def list_filter(self, source):
+    def list_filter(self, source, text):
         # filters through a list based on what is typed in the textbox
         field = self.to_list(source)
         contents = [field.item(index).text() for index in range(field.count())]
@@ -123,12 +123,25 @@ class CreateDelete:
 
 
 
-    def get_create_data(self):
+    def get_create_data(self) -> dict:
         # returns all data in create tab
         data = {}
         for field in self.fields:
             fixed_field = field + '_create'
             data[field] = self.vars[fixed_field].toPlainText()
+        return data
+
+
+
+    def get_delete_data(self) -> dict:
+        # returns all data in delete tab
+        data = {}
+        for field in self.fields:
+            data[field] = []
+            fixed_field = field + '_no_list'
+            count = list(range(self.vars[fixed_field].count()))
+            for index in count:
+                data[field].append(self.vars[fixed_field].item(index).text())
         return data
 
 

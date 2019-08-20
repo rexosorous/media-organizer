@@ -11,7 +11,6 @@ import sys
     MOST IMPORTANT TODO: NAME IT MOEHUNTER
     fix up edit window to get rid of unnescessary frames
     find a better way to handle repeated code in edit and create_delete
-    allow adding of non-media entries (in its own window)
     batch editing
     when changing media type, move file using shutil (can use relative directories)
     double clicking opens file or location (set as config)
@@ -61,6 +60,7 @@ class GUI:
             print('order and year need to be numbers')
 
 
+
     def create_entry(self):
         # adds database entries based on create_delete window data
         data = self.create_delete.get_create_data()
@@ -75,7 +75,13 @@ class GUI:
 
     def delete_entry(self):
         # deletes database entries based on create_delete window data
-        pass
+        data = self.create_delete.get_delete_data()
+        for key in data:
+            for entry in data[key]:
+                db.delete_field(key, entry)
+        self.main.clear_table()
+        self.main.populate_table()
+        self.create_delete.hide()
 
 
 

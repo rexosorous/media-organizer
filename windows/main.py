@@ -71,6 +71,14 @@ class Main():
 
 
 
+    def clear_table(self):
+        count = list(range(self.window.table.rowCount()))
+        count.reverse()
+        for index in count:
+            self.window.table.removeRow(index)
+
+
+
     def update(self, rows: [int], data: dict):
         # updates entries of table at row with data
         for row in rows:
