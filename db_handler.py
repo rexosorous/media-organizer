@@ -296,10 +296,7 @@ def update(title: str, info: dict):
     # see notes about info dict and mtm_info dict in the above enter function
     basic_info, mtm_info = dict_fixer(info)
     Media.update(**basic_info).where(Media.title==title).execute() # is this the best way to to do this?
-    try:
-        selected = get('Media', info['title'])
-    except:
-        selected = get('Media', title)
+    selected = get('Media', info['title'])
 
     mtm_fields = {
         'language': selected.language,
@@ -313,6 +310,58 @@ def update(title: str, info: dict):
         mtm_fields[field].add(mtm_info[field])
 
     selected.save()
+
+
+
+def update_set(title: str, info: dict):
+    basic_info, mtm_info = dict_fixer(info)
+    if basic_info:
+        Media.update(**basic_info).where(Media.title==title).execute()
+    selected = get('Media', title)
+
+    mtm_fields = {
+        'language': selected.language,
+        'genres': selected.genres,
+        'actors': selected.actors,
+        'tags': selected.tags
+    }
+
+    for field in mtm_info:
+        for val in mtm_info[field]:
+            if val not in mtm_fields[field]:
+                mtm_fields[field].add(val)
+
+    selected.save()
+
+
+
+def update_remove(title: str, info: dict):
+    basic_info, mtm_info = dict_fixer(info)
+    selected = get('Media', title)
+
+    for field in basic_info:
+        var = vars(selected)['__data__']
+        if field in cfg.FOREIGN:
+            if var[field] == basic_info[field].id:
+                var[field] = None
+        else:
+            if var[field] == basic_info[field]:
+                var[field] = None
+
+    mtm_fields = {
+        'language': selected.language,
+        'genres': selected.genres,
+        'actors': selected.actors,
+        'tags': selected.tags
+    }
+
+    for field in mtm_info:
+        for val in mtm_info[field]:
+            if val in mtm_fields[field]:
+                mtm_fields[field].remove(val)
+
+    selected.save()
+
 
 
 

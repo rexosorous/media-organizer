@@ -11,7 +11,6 @@ import sys
 ''' TODO
     MOST IMPORTANT TODO: NAME IT MOEHUNTER
     find a better way to handle repeated code in edit, batch_edit, and create_delete
-    batch editing media
     when changing media type, move file using shutil (can use relative directories)
     double clicking opens file or location (set as config)
     handle new entries
@@ -92,8 +91,21 @@ class GUI:
     def set_batch_edit(self):
         data = self.batch_edit.get_dict()
         for row in self.rows:
-            db.update(self.main.get_media_title(row), data)
-            self.main.update(self.rows, self.main.get_media_title(row))
+            db.update_set(self.main.get_media_title(row), data)
+            self.main.update([row], db.get_dict(self.main.get_media_title(row)))
+        self.batch_edit.hide()
+
+
+
+    def remove_batch_edit(self):
+        data = self.batch_edit.get_dict()
+        fixed_data = {}
+        for key in data:
+            if key not in ['media_type', 'animated', 'country', 'subtitles']:
+                fixed_data[key] = data[key]
+        for row in self.rows:
+            db.update_remove(self.main.get_media_title(row), fixed_data)
+            self.main.update([row], db.get_dict(self.main.get_media_title(row)))
         self.batch_edit.hide()
 
 
@@ -107,6 +119,7 @@ class GUI:
         self.main.window.create_delete_button.triggered.connect(self.create_delete.show)
         self.edit.window.submit.clicked.connect(self.submit_edit)
         self.batch_edit.window.set.clicked.connect(self.set_batch_edit)
+        self.batch_edit.window.remove.clicked.connect(self.remove_batch_edit)
         self.create_delete.window.submit_create.clicked.connect(self.create_entry)
         self.create_delete.window.submit_delete.clicked.connect(self.delete_entry)
 
