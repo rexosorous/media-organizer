@@ -283,9 +283,6 @@
                <property name="text">
                 <string>...</string>
                </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
               </widget>
              </item>
             </layout>
@@ -450,9 +447,6 @@ QListWidget::item:selected{color:black} </string>
                <property name="text">
                 <string>...</string>
                </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
               </widget>
              </item>
             </layout>
@@ -533,9 +527,6 @@ QListWidget::item:selected{color:black} </string>
               <widget class="QToolButton" name="actors_no_button">
                <property name="text">
                 <string>...</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -845,9 +836,6 @@ QListWidget::item:selected{color:black} </string>
                <property name="text">
                 <string>...</string>
                </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
               </widget>
              </item>
             </layout>
@@ -971,9 +959,6 @@ QListWidget::item:selected{color:black} </string>
                <property name="text">
                 <string>...</string>
                </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
               </widget>
              </item>
             </layout>
@@ -1096,9 +1081,6 @@ QListWidget::item:selected{color:black} </string>
               <widget class="QToolButton" name="media_type_button">
                <property name="text">
                 <string>...</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -1388,9 +1370,6 @@ QListWidget::item:selected{color:black} </string>
                <property name="text">
                 <string>...</string>
                </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
               </widget>
              </item>
             </layout>
@@ -1471,9 +1450,6 @@ QListWidget::item:selected{color:black} </string>
               <widget class="QToolButton" name="genres_no_button">
                <property name="text">
                 <string>...</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -1631,9 +1607,6 @@ QListWidget::item:selected{color:black} </string>
                <property name="text">
                 <string>...</string>
                </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
               </widget>
              </item>
             </layout>
@@ -1714,9 +1687,6 @@ QListWidget::item:selected{color:black} </string>
               <widget class="QToolButton" name="tags_no_button">
                <property name="text">
                 <string>...</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
                </property>
               </widget>
              </item>
@@ -1876,50 +1846,84 @@ QListWidget::item:selected{color:black} </string>
            <number>0</number>
           </property>
           <item>
-           <widget class="QLineEdit" name="language">
-            <property name="palette">
-             <palette>
-              <active>
-               <colorrole role="Base">
-                <brush brushstyle="SolidPattern">
-                 <color alpha="255">
-                  <red>159</red>
-                  <green>159</green>
-                  <blue>159</blue>
-                 </color>
-                </brush>
-               </colorrole>
-              </active>
-              <inactive>
-               <colorrole role="Base">
-                <brush brushstyle="SolidPattern">
-                 <color alpha="255">
-                  <red>159</red>
-                  <green>159</green>
-                  <blue>159</blue>
-                 </color>
-                </brush>
-               </colorrole>
-              </inactive>
-              <disabled>
-               <colorrole role="Base">
-                <brush brushstyle="SolidPattern">
-                 <color alpha="255">
-                  <red>108</red>
-                  <green>108</green>
-                  <blue>108</blue>
-                 </color>
-                </brush>
-               </colorrole>
-              </disabled>
-             </palette>
+           <widget class="QFrame" name="frame_23">
+            <property name="frameShape">
+             <enum>QFrame::StyledPanel</enum>
             </property>
-            <property name="autoFillBackground">
-             <bool>true</bool>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
             </property>
-            <property name="frame">
-             <bool>false</bool>
-            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout_5">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item>
+              <widget class="QLineEdit" name="language">
+               <property name="palette">
+                <palette>
+                 <active>
+                  <colorrole role="Base">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>159</red>
+                     <green>159</green>
+                     <blue>159</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </active>
+                 <inactive>
+                  <colorrole role="Base">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>159</red>
+                     <green>159</green>
+                     <blue>159</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </inactive>
+                 <disabled>
+                  <colorrole role="Base">
+                   <brush brushstyle="SolidPattern">
+                    <color alpha="255">
+                     <red>108</red>
+                     <green>108</green>
+                     <blue>108</blue>
+                    </color>
+                   </brush>
+                  </colorrole>
+                 </disabled>
+                </palette>
+               </property>
+               <property name="autoFillBackground">
+                <bool>true</bool>
+               </property>
+               <property name="frame">
+                <bool>false</bool>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QToolButton" name="language_button">
+               <property name="text">
+                <string>...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>
@@ -2135,9 +2139,6 @@ QListWidget::item:selected{color:black} </string>
               <widget class="QToolButton" name="country_button">
                <property name="text">
                 <string>...</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
                </property>
               </widget>
              </item>

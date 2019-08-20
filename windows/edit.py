@@ -20,37 +20,53 @@ class Edit():
 
     def create_menus(self):
         # creates drop down menus for search bars
-        with_clear = ['series', 'studio', 'director', 'media_type', 'studio']
-        self.window.series_button.setMenu(QtWidgets.QMenu(self.window.series_button))
-        self.window.series_button.menu().addAction(QtWidgets.QAction('Create', self.window.series_button))
-        self.window.series_button.menu().addAction(QtWidgets.QAction('Clear', self.window.series_button))
-        self.window.series_button.menu().triggered[QtWidgets.QAction].connect(partial(self.filter_menu, self.window.series_list))
+        all_list_fields = ['genres_yes', 'genres_no', 'tags_yes', 'tags_no', 'series', 'actors_yes', 'actors_no', 'media_type', 'studio', 'director', 'country', 'language']
+        with_deselect = ['series', 'studio', 'director']
+        with_remove_all = ['genres_yes', 'tags_yes', 'actors_yes']
+
+        for field in all_list_fields:
+            qlist = self.vars[field + '_list']
+            button = self.vars[field + '_button']
+            button.setMenu(QtWidgets.QMenu(button))
+            button.menu().addAction(QtWidgets.QAction('Create', button))
+            if field in with_deselect:
+                button.menu().addAction(QtWidgets.QAction('Deselect', button))
+            if field in with_remove_all:
+                button.menu().addAction(QtWidgets.QAction('Remove All', button))
+            button.menu().triggered[QtWidgets.QAction].connect(partial(self.filter_menu, qlist))
+            button.clicked.connect(partial(self.show_menu, button))
 
 
 
-    def filter_menu(self, source, field):
+    def filter_menu(self, field, source):
         # filters which button is pressed in the drop down menu
-        if source.text == 'Create':
+        if source.text() == 'Create':
             self.create_field(field)
-        elif source.text == 'Clear':
+        elif source.text() == 'Deselect':
             self.deselect(field)
+        elif source.text() == 'Remove All':
+            self.list_transfer_all(field)
 
 
 
-    def create_field(self, field):
+    def create_field(self, source):
         # creates a new field entry in db
-        pass
+        obj_name = source.objectName()
+        data = self.vars[obj_name.replace('_list', '')].displayText()
+        db.create(obj_name[:obj_name.find('_')], data)
+        source.addItem(data)
 
 
 
     def deselect(self, source):
         # deselects an item in listwidget
-        source.currentItem().setSelected(False)
+        source.setCurrentRow(-1)
 
 
 
-    def show_toolbar(self):
-        self.window.series_button.showMenu()
+    def show_menu(self, source):
+        # shows the menus associated with the tool buttons
+        source.showMenu()
 
 
 
@@ -207,6 +223,17 @@ class Edit():
 
 
 
+    def list_transfer_all(self, source):
+        # transfers all items from the yes side to the no side
+        count = list(range(source.count()))
+        count.reverse()
+        for index in count:
+            item = source.takeItem(index)
+            destination = source.objectName().replace('yes', 'no')
+            self.vars[destination].addItem(item)
+
+
+
     def list_filter(self, source, text):
         # filters through a list based on what is typed in the textbox
         field = self.to_list(source)
@@ -226,9 +253,9 @@ class Edit():
             'alt_title': self.window.alt_title.displayText(),
             'series': self.window.series_list.currentItem().text() if self.window.series_list.currentItem() else None,
             'order': float(self.window.order.displayText()) if self.window.order.displayText() else None,
-            'media_type': self.window.media_type.currentText(),
+            'media_type': self.window.media_type_list.currentItem().text() if self.window.media_type_list.currentItem() else None,
             'animated': self.window.animated_yes.isChecked(),
-            'country': self.window.country.currentText(),
+            'country': self.window.country_list.currentItem().text() if self.window.country_list.currentItem() else None,
             'language': ', '.join([lang.text() for lang in self.window.language_list.selectedItems()]),
             'subtitles': self.window.subtitles_yes.isChecked(),
             'year': int(self.window.year.displayText()) if self.window.year.displayText() else None,
@@ -253,8 +280,13 @@ class Edit():
 
     def select_top(self, source):
         # after pressing enter, selects the topmost item
-        field = self.to_list(source)
-        print(field.item(0).text())
+        src = self.to_list(source)
+        for index in range(src.count()):
+            if not src.item(index).isHidden():
+                src.setCurrentItem(src.item(index))
+                if 'yes' in src.objectName() or 'no' in src.objectName():
+                    self.list_transfer(src)
+                break
 
 
 

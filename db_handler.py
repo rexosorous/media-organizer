@@ -272,9 +272,9 @@ def enter(basic_info: dict, mtm_info = {}):
 
 
 
-def create(table: str, name: str):
+def create(field: str, name: str):
     # creates a non-media entry
-    TABLES[table].insert(name=name).execute()
+    globals()[FIELD_TO_TABLE[field]].insert(name=name).execute()
 
 
 

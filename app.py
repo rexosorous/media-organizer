@@ -7,9 +7,7 @@ import sys
 
 
 ''' TODO
-    deselect
-    pressing enter in search bar selects first result
-    allow adding of non-media entries
+    allow adding of non-media entries (in its own window)
     batch editing
     when changing media type, move file using shutil (can use relative directories)
     double clicking opens file or location (set as config)
@@ -71,28 +69,10 @@ class GUI:
         self.edit.window.tags_yes_list.doubleClicked.connect(partial(self.edit.list_transfer, self.edit.window.tags_yes_list))
         self.edit.window.tags_no_list.doubleClicked.connect(partial(self.edit.list_transfer, self.edit.window.tags_no_list))
 
-        # list right clicks
-        # self.edit.window.genres_yes_list.rightClicked.connect(partial(self.edit.deselect, self.edit.window.genres_yes_list))
-
-        # search bars
-        self.edit.window.genres_yes.textChanged.connect(partial(self.edit.list_filter, self.edit.window.genres_yes))
-        self.edit.window.genres_no.textChanged.connect(partial(self.edit.list_filter, self.edit.window.genres_no))
-        self.edit.window.tags_yes.textChanged.connect(partial(self.edit.list_filter, self.edit.window.tags_yes))
-        self.edit.window.tags_no.textChanged.connect(partial(self.edit.list_filter, self.edit.window.tags_no))
-        self.edit.window.actors_yes.textChanged.connect(partial(self.edit.list_filter, self.edit.window.actors_yes))
-        self.edit.window.actors_no.textChanged.connect(partial(self.edit.list_filter, self.edit.window.actors_no))
-        self.edit.window.studio.textChanged.connect(partial(self.edit.list_filter, self.edit.window.studio))
-        self.edit.window.director.textChanged.connect(partial(self.edit.list_filter, self.edit.window.director))
-        self.edit.window.series.textChanged.connect(partial(self.edit.list_filter, self.edit.window.series))
-        self.edit.window.language.textChanged.connect(partial(self.edit.list_filter, self.edit.window.language))
-        self.edit.window.media_type.textChanged.connect(partial(self.edit.list_filter, self.edit.window.media_type))
-        self.edit.window.country.textChanged.connect(partial(self.edit.list_filter, self.edit.window.country))
-
-
-        self.edit.window.series.returnPressed.connect(partial(self.edit.select_top, self.edit.window.series))
-
-
-        self.edit.window.series_button.clicked.connect(self.edit.show_toolbar)
+        search_bars = ['genres_yes', 'genres_no', 'tags_yes', 'tags_no', 'series', 'actors_yes', 'actors_no', 'media_type', 'studio', 'director', 'country', 'language']
+        for field in search_bars:
+            self.edit.vars[field].textChanged.connect(partial(self.edit.list_filter, self.edit.vars[field]))
+            self.edit.vars[field].returnPressed.connect(partial(self.edit.select_top, self.edit.vars[field]))
 
 
 
