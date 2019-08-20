@@ -406,6 +406,7 @@
     <property name="title">
      <string>File</string>
     </property>
+    <addaction name="set_directory_button"/>
    </widget>
    <widget class="QMenu" name="menuOptions">
     <property name="title">
@@ -426,6 +427,21 @@
   <action name="create_delete_button">
    <property name="text">
     <string>Create and Delete</string>
+   </property>
+  </action>
+  <action name="actionf">
+   <property name="text">
+    <string>f</string>
+   </property>
+  </action>
+  <action name="actiong">
+   <property name="text">
+    <string>g</string>
+   </property>
+  </action>
+  <action name="set_directory_button">
+   <property name="text">
+    <string>Set Directory</string>
    </property>
   </action>
  </widget>

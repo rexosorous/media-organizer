@@ -5,14 +5,15 @@ import windows.batch_edit as batch_edit
 import windows.create_delete as create_delete
 import db_handler as db
 from functools import partial
-import sys
+from sys import exit
+import file
+import os
 
 
 ''' TODO
     MOST IMPORTANT TODO: NAME IT MOEHUNTER
     find a better way to handle repeated code in edit, batch_edit, and create_delete
     when changing media type, move file using shutil (can use relative directories)
-    double clicking opens file or location (set as config)
     handle new entries
     pressing tab and shift-tab moves cursor to next area (select each radio button)
     scan for deleted media
@@ -25,19 +26,22 @@ import sys
 
 class GUI:
     def __init__(self):
-        self.app = QtWidgets.QApplication(sys.argv)
+        self.app = QtWidgets.QApplication([])
 
         self.main = main.Main()
         self.edit = edit.Edit()
         self.batch_edit = batch_edit.BatchEdit()
         self.create_delete = create_delete.CreateDelete()
 
+        with open('directory.txt', 'r') as file:
+            self.directory = file.readline()
+
         self.rows = []
 
         self.connect_events()
 
         self.main.MainWindow.show()
-        sys.exit(self.app.exec_())
+        exit(self.app.exec_())
 
 
 
@@ -110,18 +114,39 @@ class GUI:
 
 
 
+    def set_directory(self):
+        options = QtWidgets.QFileDialog.Options()
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self.main.MainWindow, "QtWidgets.QFileDialog.getOpenFileName()", options=options)
+        if directory:
+            self.directory = directory
+            with open('directory.txt', 'w') as file:
+                file.write(directory)
+
+
+
+    def find_media(self):
+        data = self.main.get_table_selection()
+        path = self.directory + '\\' + 'Media' + '\\' + data['media_type'] + '\\' + file.to_windows(data['title'])
+        os.startfile(os.path.realpath(path))
+
+
+
     def connect_events(self):
         # connects all the events to functions
         # note: partial() allows us to send the source of the event
 
         # buttons
         self.main.window.edit_button.clicked.connect(self.edit_show)
+        self.main.window.set_directory_button.triggered.connect(self.set_directory)
         self.main.window.create_delete_button.triggered.connect(self.create_delete.show)
         self.edit.window.submit.clicked.connect(self.submit_edit)
         self.batch_edit.window.set.clicked.connect(self.set_batch_edit)
         self.batch_edit.window.remove.clicked.connect(self.remove_batch_edit)
         self.create_delete.window.submit_create.clicked.connect(self.create_entry)
         self.create_delete.window.submit_delete.clicked.connect(self.delete_entry)
+
+
+        self.main.window.table.cellDoubleClicked.connect(self.find_media)
 
         # list double clicks
         edit_double_clicks = ['genres_yes_list', 'genres_no_list', 'actors_yes_list', 'actors_no_list', 'tags_yes_list', 'tags_no_list']
