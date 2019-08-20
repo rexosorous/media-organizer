@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'main_ui.ui'
+# Form implementation generated from reading ui file 'ui/main_ui.ui'
 #
 # Created by: PyQt5 UI code generator 5.13.0
 #
@@ -153,10 +153,22 @@ class Ui_main_window(object):
         self.menubar = QtWidgets.QMenuBar(main_window)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 1280, 22))
         self.menubar.setObjectName("menubar")
+        self.menuFile = QtWidgets.QMenu(self.menubar)
+        self.menuFile.setObjectName("menuFile")
+        self.menuOptions = QtWidgets.QMenu(self.menubar)
+        self.menuOptions.setObjectName("menuOptions")
+        self.menuHelp = QtWidgets.QMenu(self.menubar)
+        self.menuHelp.setObjectName("menuHelp")
         main_window.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(main_window)
         self.statusbar.setObjectName("statusbar")
         main_window.setStatusBar(self.statusbar)
+        self.create_delete_button = QtWidgets.QAction(main_window)
+        self.create_delete_button.setObjectName("create_delete_button")
+        self.menuOptions.addAction(self.create_delete_button)
+        self.menubar.addAction(self.menuFile.menuAction())
+        self.menubar.addAction(self.menuOptions.menuAction())
+        self.menubar.addAction(self.menuHelp.menuAction())
 
         self.retranslateUi(main_window)
         QtCore.QMetaObject.connectSlotsByName(main_window)
@@ -203,3 +215,7 @@ class Ui_main_window(object):
         item.setText(_translate("main_window", "Notes"))
         self.label_19.setText(_translate("main_window", "Search"))
         self.edit_button.setText(_translate("main_window", "EDIT"))
+        self.menuFile.setTitle(_translate("main_window", "File"))
+        self.menuOptions.setTitle(_translate("main_window", "Options"))
+        self.menuHelp.setTitle(_translate("main_window", "Help"))
+        self.create_delete_button.setText(_translate("main_window", "Create and Delete"))

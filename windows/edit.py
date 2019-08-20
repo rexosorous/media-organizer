@@ -71,7 +71,7 @@ class Edit():
 
 
     def populate(self):
-        # adds all the contents for lists and combo boxes
+        # adds all the contents for lists
 
         # list adds
         self.window.series_list.addItems(db.get_all('Series'))
