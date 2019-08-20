@@ -296,7 +296,10 @@ def update(title: str, info: dict):
     # see notes about info dict and mtm_info dict in the above enter function
     basic_info, mtm_info = dict_fixer(info)
     Media.update(**basic_info).where(Media.title==title).execute() # is this the best way to to do this?
-    selected = get('Media', info['title'])
+    try:
+        selected = get('Media', info['title'])
+    except:
+        selected = get('Media', title)
 
     mtm_fields = {
         'language': selected.language,

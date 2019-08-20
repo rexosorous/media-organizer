@@ -1,6 +1,7 @@
 from PyQt5 import QtWidgets
 import windows.main as main
 import windows.edit as edit
+import windows.batch_edit as batch_edit
 import windows.create_delete as create_delete
 import db_handler as db
 from functools import partial
@@ -9,9 +10,8 @@ import sys
 
 ''' TODO
     MOST IMPORTANT TODO: NAME IT MOEHUNTER
-    fix up edit window to get rid of unnescessary frames
-    find a better way to handle repeated code in edit and create_delete
-    batch editing
+    find a better way to handle repeated code in edit, batch_edit, and create_delete
+    batch editing media
     when changing media type, move file using shutil (can use relative directories)
     double clicking opens file or location (set as config)
     handle new entries
@@ -30,6 +30,7 @@ class GUI:
 
         self.main = main.Main()
         self.edit = edit.Edit()
+        self.batch_edit = batch_edit.BatchEdit()
         self.create_delete = create_delete.CreateDelete()
 
         self.rows = []
@@ -44,7 +45,10 @@ class GUI:
     def edit_show(self):
         # populates the edit window and then shows it
         self.rows = self.main.selected_rows()
-        self.edit.show(self.main.get_table_selection())
+        if len(self.rows) > 1:
+            self.batch_edit.show()
+        else:
+            self.edit.show(self.main.get_table_selection())
 
 
 
@@ -85,6 +89,15 @@ class GUI:
 
 
 
+    def set_batch_edit(self):
+        data = self.batch_edit.get_dict()
+        for row in self.rows:
+            db.update(self.main.get_media_title(row), data)
+            self.main.update(self.rows, self.main.get_media_title(row))
+        self.batch_edit.hide()
+
+
+
     def connect_events(self):
         # connects all the events to functions
         # note: partial() allows us to send the source of the event
@@ -93,6 +106,7 @@ class GUI:
         self.main.window.edit_button.clicked.connect(self.edit_show)
         self.main.window.create_delete_button.triggered.connect(self.create_delete.show)
         self.edit.window.submit.clicked.connect(self.submit_edit)
+        self.batch_edit.window.set.clicked.connect(self.set_batch_edit)
         self.create_delete.window.submit_create.clicked.connect(self.create_entry)
         self.create_delete.window.submit_delete.clicked.connect(self.delete_entry)
 
@@ -100,12 +114,15 @@ class GUI:
         edit_double_clicks = ['genres_yes_list', 'genres_no_list', 'actors_yes_list', 'actors_no_list', 'tags_yes_list', 'tags_no_list']
         for field in edit_double_clicks:
             self.edit.vars[field].doubleClicked.connect(partial(self.edit.list_transfer, self.edit.vars[field]))
+            self.batch_edit.vars[field].doubleClicked.connect(partial(self.batch_edit.list_transfer, self.batch_edit.vars[field]))
 
         # search bars
         edit_search_bars = ['genres_yes', 'genres_no', 'tags_yes', 'tags_no', 'series', 'actors_yes', 'actors_no', 'media_type', 'studio', 'director', 'country', 'language']
         for field in edit_search_bars:
             self.edit.vars[field].textChanged.connect(partial(self.edit.list_filter, self.edit.vars[field]))
             self.edit.vars[field].returnPressed.connect(partial(self.edit.select_top, self.edit.vars[field]))
+            self.batch_edit.vars[field].textChanged.connect(partial(self.batch_edit.list_filter, self.batch_edit.vars[field]))
+            self.batch_edit.vars[field].returnPressed.connect(partial(self.batch_edit.select_top, self.batch_edit.vars[field]))
 
         # delete fields
         delete_fields = ['series', 'director', 'studio', 'language', 'media_type', 'country', 'genres', 'tags', 'actors']

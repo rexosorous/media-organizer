@@ -113,3 +113,9 @@ class Main():
         for group in ranges:
             rows += group
         return rows
+
+
+
+    def get_media_title(self, index: int) -> str:
+        # returns the title of the entry at row int
+        return self.window.table.item(index, 0).text()

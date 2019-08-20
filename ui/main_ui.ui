@@ -136,8 +136,11 @@
        <property name="bottomMargin">
         <number>0</number>
        </property>
-       <property name="spacing">
+       <property name="horizontalSpacing">
         <number>0</number>
+       </property>
+       <property name="verticalSpacing">
+        <number>20</number>
        </property>
        <item row="2" column="0">
         <widget class="QTableWidget" name="table">
