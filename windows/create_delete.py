@@ -2,17 +2,23 @@ from PyQt5 import QtWidgets, QtCore
 import db_handler as db
 import ui.create_delete_ui as create_delete_ui
 from functools import partial
+from windows.base_edit import BaseEdit
 
 
 
-class CreateDelete:
+class CreateDelete(BaseEdit):
     def __init__(self):
+        super().__init__()
         self.CreateDeleteWindow = QtWidgets.QMainWindow()
         self.window = create_delete_ui.Ui_create_delete_window()
         self.window.setupUi(self.CreateDeleteWindow)
         self.vars = vars(self.window)
 
+        # all fields in their "general" form
         self.fields = ['genres', 'tags', 'actors', 'series', 'director', 'studio', 'media_type', 'country', 'language']
+
+        self.connect_events()
+
 
 
     def populate(self):
@@ -63,13 +69,21 @@ class CreateDelete:
                 self.vars[ynfield+'_list'].clear()
 
 
+    def connect_events(self):
+        for field in self.fields:
+            for yes_no in ['_yes', '_no']:
+                fixed_field = field + yes_no
+                self.vars[fixed_field].textChanged.connect(partial(self.list_filter, self.vars[fixed_field]))
+                self.vars[fixed_field].returnPressed.connect(partial(self.select_top, self.vars[fixed_field]))
+                fixed_field = fixed_field + '_list'
+                self.vars[fixed_field].doubleClicked.connect(partial(self.list_transfer, self.vars[fixed_field]))
+
+
 
     def show(self):
         # populates the edit screen's fields with what is selected in main table
         self.clear()
         self.populate()
-
-        # display
         self.CreateDeleteWindow.show()
 
 
@@ -78,48 +92,6 @@ class CreateDelete:
         # clears all the fields then hides the window
         self.clear()
         self.CreateDeleteWindow.hide()
-
-
-
-
-
-
-
-
-
-    def list_transfer(self, source):
-        # when a user double clicks an item in a mtm list view, transfer it to the other list
-        selected = source.takeItem(source.currentRow()) # the item to be transferred
-        src_name = source.objectName() # name of the list field
-        if 'yes' in src_name: # converts the name. ex: genres_yes_list ---> genres_no_list and vice versa
-            src_name = src_name.replace('yes', 'no')
-        else:
-            src_name = src_name.replace('no', 'yes')
-        self.vars[src_name].addItem(selected) # add the item to the opposite list
-
-
-
-    def list_filter(self, source, text):
-        # filters through a list based on what is typed in the textbox
-        field = self.to_list(source)
-        contents = [field.item(index).text() for index in range(field.count())]
-        for item in contents:
-            if text.lower() in item.lower():
-                field.findItems(item, QtCore.Qt.MatchExactly)[0].setHidden(False)
-            else:
-                field.findItems(item, QtCore.Qt.MatchExactly)[0].setHidden(True)
-
-
-
-    def select_top(self, source):
-        # after pressing enter, selects the topmost item
-        src = self.to_list(source)
-        for index in range(src.count()):
-            if not src.item(index).isHidden():
-                src.setCurrentItem(src.item(index))
-                if 'yes' in src.objectName() or 'no' in src.objectName():
-                    self.list_transfer(src)
-                break
 
 
 
@@ -143,13 +115,3 @@ class CreateDelete:
             for index in count:
                 data[field].append(self.vars[fixed_field].item(index).text())
         return data
-
-
-
-
-
-
-    def to_list(self, source):
-        # converts a source to its list counterpart
-        src_name = source.objectName() + '_list'
-        return self.vars[src_name]

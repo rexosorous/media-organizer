@@ -4,15 +4,15 @@ import windows.edit as edit
 import windows.batch_edit as batch_edit
 import windows.create_delete as create_delete
 import db_handler as db
+import config as cfg
 from functools import partial
 from sys import exit
-import file
+import utilities as util
 import os
 
 
 ''' TODO
     MOST IMPORTANT TODO: NAME IT MOEHUNTER
-    find a better way to handle repeated code in edit, batch_edit, and create_delete
     handle new entries
     pressing tab and shift-tab moves cursor to next area (select each radio button)
     scan for deleted media
@@ -31,9 +31,6 @@ class GUI:
         self.edit = edit.Edit()
         self.batch_edit = batch_edit.BatchEdit()
         self.create_delete = create_delete.CreateDelete()
-
-        with open('directory.txt', 'r') as file:
-            self.directory = file.readline()
 
         self.rows = []
 
@@ -127,9 +124,7 @@ class GUI:
         options = QtWidgets.QFileDialog.Options()
         directory = QtWidgets.QFileDialog.getExistingDirectory(self.main.MainWindow, "QtWidgets.QFileDialog.getOpenFileName()", options=options)
         if directory:
-            self.directory = directory
-            with open('directory.txt', 'w') as file:
-                file.write(directory)
+            cfg.directory = directory
 
 
 
@@ -141,7 +136,7 @@ class GUI:
 
 
     def to_path(self, media_type: str, filename: str):
-        return os.path.realpath(self.directory + '\\' + 'Media' + '\\' + file.to_windows(media_type) + '\\' + file.to_windows(filename))
+        return os.path.realpath(cfg.directory + 'Media' + '\\' + util.to_windows(media_type) + '\\' + util.to_windows(filename))
 
 
 
@@ -161,30 +156,6 @@ class GUI:
 
 
         self.main.window.table.cellDoubleClicked.connect(self.find_media)
-
-        # list double clicks
-        edit_double_clicks = ['genres_yes_list', 'genres_no_list', 'actors_yes_list', 'actors_no_list', 'tags_yes_list', 'tags_no_list']
-        for field in edit_double_clicks:
-            self.edit.vars[field].doubleClicked.connect(partial(self.edit.list_transfer, self.edit.vars[field]))
-            self.batch_edit.vars[field].doubleClicked.connect(partial(self.batch_edit.list_transfer, self.batch_edit.vars[field]))
-
-        # search bars
-        edit_search_bars = ['genres_yes', 'genres_no', 'tags_yes', 'tags_no', 'series', 'actors_yes', 'actors_no', 'media_type', 'studio', 'director', 'country', 'language']
-        for field in edit_search_bars:
-            self.edit.vars[field].textChanged.connect(partial(self.edit.list_filter, self.edit.vars[field]))
-            self.edit.vars[field].returnPressed.connect(partial(self.edit.select_top, self.edit.vars[field]))
-            self.batch_edit.vars[field].textChanged.connect(partial(self.batch_edit.list_filter, self.batch_edit.vars[field]))
-            self.batch_edit.vars[field].returnPressed.connect(partial(self.batch_edit.select_top, self.batch_edit.vars[field]))
-
-        # delete fields
-        delete_fields = ['series', 'director', 'studio', 'language', 'media_type', 'country', 'genres', 'tags', 'actors']
-        for field in delete_fields:
-            for yes_no in ['_yes', '_no']:
-                fixed_field = field + yes_no
-                self.create_delete.vars[fixed_field].textChanged.connect(partial(self.create_delete.list_filter, self.create_delete.vars[fixed_field]))
-                self.create_delete.vars[fixed_field].returnPressed.connect(partial(self.create_delete.select_top, self.create_delete.vars[fixed_field]))
-                fixed_field = fixed_field + '_list'
-                self.create_delete.vars[fixed_field].doubleClicked.connect(partial(self.create_delete.list_transfer, self.create_delete.vars[fixed_field]))
 
 
 

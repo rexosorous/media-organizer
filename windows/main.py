@@ -1,10 +1,10 @@
 from PyQt5 import QtWidgets
 import ui.main_ui as main_ui
 import db_handler as db
+import utilities as util
 
 
 TABLE_FIELDS = ['title', 'alt_title', 'series', 'order', 'media_type', 'animated', 'country', 'language', 'subtitles', 'year', 'genres', 'director', 'studio', 'actors', 'plot', 'rating', 'tags', 'notes']
-TABLE_COL = 18
 FIELD_NUM = {
     'title': 0,
     'alt_title': 1,
@@ -28,7 +28,7 @@ FIELD_NUM = {
 
 
 
-class Main():
+class Main:
     def __init__(self):
         self.MainWindow = QtWidgets.QMainWindow()
         self.window = main_ui.Ui_main_window()
@@ -66,14 +66,14 @@ class Main():
         for entry in db.get_table():
             self.window.table.insertRow(row)
             for key in entry:
-                self.window.table.setItem(row, FIELD_NUM[key], QtWidgets.QTableWidgetItem(self.stringify(entry[key])))
+                self.window.table.setItem(row, FIELD_NUM[key], QtWidgets.QTableWidgetItem(util.stringify(entry[key])))
             row += 1
 
 
 
     def clear_table(self):
         count = list(range(self.window.table.rowCount()))
-        count.reverse()
+        count.reverse() # needs to work backwards because when we delete entry at 0, the next entry will become entry 0
         for index in count:
             self.window.table.removeRow(index)
 
@@ -83,25 +83,15 @@ class Main():
         # updates entries of table at row with data
         for row in rows:
             for key in data:
-                self.window.table.item(row, FIELD_NUM[key]).setText(self.stringify(data[key]))
+                self.window.table.item(row, FIELD_NUM[key]).setText(util.stringify(data[key]))
 
 
 
     def get_table_selection(self) -> dict:
         row = self.window.table.currentRow()
         data = {}
-        for index in range(TABLE_COL):
+        for index in range(len(TABLE_FIELDS)):
             data[TABLE_FIELDS[index]] = self.window.table.item(row, index).text()
-        return data
-
-
-
-    def stringify(self, data):
-        # table only accepts strings, so we convert non-strings datatypes to output to table
-        if type(data) is list:
-            data = ', '.join(data)
-        elif type(data) in [int, float, bool]:
-            data = str(data)
         return data
 
 

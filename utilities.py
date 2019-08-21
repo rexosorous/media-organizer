@@ -15,3 +15,11 @@ def scan(directory: str) -> [str]:
     # returns a list of all folders in directory
     # TODO change to read from multiple directories
     return os.listdir(directory)
+
+def stringify(data) -> str:
+    # main_table only accepts strings, so we convert non-strings datatypes to output to the table
+    if type(data) is list:
+        data = ', '.join(data)
+    elif type(data) in [int, float, bool]:
+        data = str(data)
+    return data

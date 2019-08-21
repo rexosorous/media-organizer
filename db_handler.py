@@ -175,7 +175,7 @@ def get_detailed(table: str, kwargs: dict):
 
 def get_dict(media) -> dict:
     # finds a media entry and converts its info into a readable dictionary
-    if type(media) is str: # allows for passing by entry object or title
+    if isinstance(media, str): # allows for passing by entry object or title
         media = get('Media', media)
 
     d = shortcuts.model_to_dict(media, manytomany=True)
