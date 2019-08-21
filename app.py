@@ -13,7 +13,6 @@ import os
 ''' TODO
     MOST IMPORTANT TODO: NAME IT MOEHUNTER
     find a better way to handle repeated code in edit, batch_edit, and create_delete
-    when changing media type, move file using shutil (can use relative directories)
     handle new entries
     pressing tab and shift-tab moves cursor to next area (select each radio button)
     scan for deleted media
@@ -59,12 +58,44 @@ class GUI:
         # edits database entry based on edit window data
         try:
             data = self.edit.get_dict()
+            old_path = self.to_path(db.get_dict(self.edit.title)['media_type'], self.edit.title)
+            new_path = self.to_path(data['media_type'], data['title'])
+            if old_path != new_path:
+                os.rename(old_path, new_path)
             db.update(self.edit.title, data)
             self.main.update(self.rows, db.get_dict(data['title']))
             self.edit.hide()
         except ValueError:
             # HIGHLIGHT INCORRECT FIELDS
             print('order and year need to be numbers')
+
+
+
+    def set_batch_edit(self):
+        data = self.batch_edit.get_dict()
+        for row in self.rows:
+            if 'media_type' in data.keys():
+                if data['media_type'] and data['media_type'] != '':
+                    title = self.main.get_media_title(row)
+                    old_path = self.to_path(db.get_dict(title)['media_type'], title)
+                    new_path = self.to_path(data['media_type'], title)
+                    os.rename(old_path, new_path)
+            db.update_set(self.main.get_media_title(row), data)
+            self.main.update([row], db.get_dict(self.main.get_media_title(row)))
+        self.batch_edit.hide()
+
+
+
+    def remove_batch_edit(self):
+        data = self.batch_edit.get_dict()
+        fixed_data = {}
+        for key in data:
+            if key not in ['media_type', 'animated', 'country', 'subtitles']: # required fields
+                fixed_data[key] = data[key]
+        for row in self.rows:
+            db.update_remove(self.main.get_media_title(row), fixed_data)
+            self.main.update([row], db.get_dict(self.main.get_media_title(row)))
+        self.batch_edit.hide()
 
 
 
@@ -92,28 +123,6 @@ class GUI:
 
 
 
-    def set_batch_edit(self):
-        data = self.batch_edit.get_dict()
-        for row in self.rows:
-            db.update_set(self.main.get_media_title(row), data)
-            self.main.update([row], db.get_dict(self.main.get_media_title(row)))
-        self.batch_edit.hide()
-
-
-
-    def remove_batch_edit(self):
-        data = self.batch_edit.get_dict()
-        fixed_data = {}
-        for key in data:
-            if key not in ['media_type', 'animated', 'country', 'subtitles']:
-                fixed_data[key] = data[key]
-        for row in self.rows:
-            db.update_remove(self.main.get_media_title(row), fixed_data)
-            self.main.update([row], db.get_dict(self.main.get_media_title(row)))
-        self.batch_edit.hide()
-
-
-
     def set_directory(self):
         options = QtWidgets.QFileDialog.Options()
         directory = QtWidgets.QFileDialog.getExistingDirectory(self.main.MainWindow, "QtWidgets.QFileDialog.getOpenFileName()", options=options)
@@ -126,8 +135,13 @@ class GUI:
 
     def find_media(self):
         data = self.main.get_table_selection()
-        path = self.directory + '\\' + 'Media' + '\\' + data['media_type'] + '\\' + file.to_windows(data['title'])
-        os.startfile(os.path.realpath(path))
+        path = self.to_path(data['media_type'], data['title'])
+        os.startfile(path)
+
+
+
+    def to_path(self, media_type: str, filename: str):
+        return os.path.realpath(self.directory + '\\' + 'Media' + '\\' + file.to_windows(media_type) + '\\' + file.to_windows(filename))
 
 
 
@@ -171,6 +185,7 @@ class GUI:
                 self.create_delete.vars[fixed_field].returnPressed.connect(partial(self.create_delete.select_top, self.create_delete.vars[fixed_field]))
                 fixed_field = fixed_field + '_list'
                 self.create_delete.vars[fixed_field].doubleClicked.connect(partial(self.create_delete.list_transfer, self.create_delete.vars[fixed_field]))
+
 
 
 

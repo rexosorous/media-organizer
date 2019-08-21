@@ -60,7 +60,7 @@ class Tags(BaseModel):
 class Media(BaseModel):
     # base table containing all media entries
     title = peewee.CharField(unique=True)
-    alt_title = peewee.CharField(unique=True, null=True)
+    alt_title = peewee.CharField(null=True)
     series = peewee.ForeignKeyField(Series, backref='sequels', null=True)
     order = peewee.DecimalField(max_digits=2, null=True) # the story's chronological order ex: Star Wars Ep. 1, 2, 3, 4, 5, 6 | NOT 4, 5, 6, 1, 2, 3
     media_type = peewee.ForeignKeyField(MediaTypes, backref='media') # movie | tv show | etc
@@ -142,7 +142,7 @@ def dict_fixer(data: dict) -> [dict, dict]:
 
     for key in data:
         if key in cfg.SIMPLE:
-            basic[key] = data[key]
+            basic[key] = data[key] if data[key] != '' else None
         elif key in cfg.FOREIGN:
             basic[key] = get(FIELD_TO_TABLE[key], data[key]) if data[key] else None
         elif key in cfg.MTM:
