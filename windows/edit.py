@@ -1,7 +1,6 @@
-from PyQt5 import QtWidgets, QtCore
-import db_handler as db
+from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtCore import Qt
 import ui.edit_ui as edit_ui
-from functools import partial
 from windows.base_edit import BaseEdit
 
 
@@ -9,7 +8,7 @@ from windows.base_edit import BaseEdit
 class Edit(BaseEdit):
     def __init__(self):
         super().__init__()
-        self.EditWindow = QtWidgets.QMainWindow()
+        self.EditWindow = QMainWindow()
         self.window = edit_ui.Ui_edit_window()
         self.window.setupUi(self.EditWindow)
         self.vars = vars(self.window)
@@ -27,7 +26,6 @@ class Edit(BaseEdit):
         # for clearing fields
         self.all_clear_fields = ['title', 'alt_title', 'order', 'year', 'plot', 'notes', 'series', 'series_list', 'director', 'director_list', 'studio', 'studio_list', 'language', 'language_list', 'media_type', 'media_type_list', 'country', 'country_list', 'genres_yes', 'genres_yes_list', 'genres_no', 'genres_no_list', 'tags_yes', 'tags_yes_list', 'tags_no', 'tags_no_list', 'actors_yes', 'actors_yes_list', 'actors_no', 'actors_no_list']
         self.all_radio_buttons = ['rating_none', 'rating_1', 'rating_2', 'rating_3', 'rating_4', 'rating_5', 'animated_yes', 'animated_no', 'subtitles_yes', 'subtitles_no']
-
 
         self.create_menus()
         self.connect_events()
@@ -47,14 +45,14 @@ class Edit(BaseEdit):
                 self.vars[key].setText(selection[key])
             elif key in ['series', 'director', 'studio', 'media_type', 'country']: # lists
                 field = key + '_list'
-                highlight = self.vars[field].findItems(selection[key], QtCore.Qt.MatchExactly)
+                highlight = self.vars[field].findItems(selection[key], Qt.MatchExactly)
                 if len(highlight) == 1:
                     self.vars[field].setCurrentItem(highlight[0])
             elif key == 'language': # multi select lists
                 if selection['language']:
                     langs = selection['language'].split(', ')    # languages is a many to many field
                     for lang in langs:
-                        highlight = self.window.language_list.findItems(lang, QtCore.Qt.MatchExactly)
+                        highlight = self.window.language_list.findItems(lang, Qt.MatchExactly)
                         highlight[0].setSelected(True)
             elif key == 'rating':
                 try:
@@ -73,7 +71,7 @@ class Edit(BaseEdit):
                 field_yes = key + '_yes_list'
                 for val in transfer:
                     if val:
-                        take = self.vars[field_no].findItems(val, QtCore.Qt.MatchExactly)
+                        take = self.vars[field_no].findItems(val, Qt.MatchExactly)
                         place = self.vars[field_no].takeItem(self.vars[field_no].row(take[0]))
                         self.vars[field_yes].addItem(place)
 

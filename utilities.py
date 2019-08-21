@@ -23,3 +23,7 @@ def stringify(data) -> str:
     elif type(data) in [int, float, bool]:
         data = str(data)
     return data
+
+
+def to_path(media_type: str, filename: str):
+    return os.path.realpath(cfg.directory + 'Media' + '\\' + util.to_windows(media_type) + '\\' + util.to_windows(filename))

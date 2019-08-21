@@ -1,7 +1,7 @@
-from PyQt5 import QtWidgets, QtCore
+from PyQt5.QtWidgets import QMainWindow
+from functools import partial
 import db_handler as db
 import ui.create_delete_ui as create_delete_ui
-from functools import partial
 from windows.base_edit import BaseEdit
 
 
@@ -9,7 +9,7 @@ from windows.base_edit import BaseEdit
 class CreateDelete(BaseEdit):
     def __init__(self):
         super().__init__()
-        self.CreateDeleteWindow = QtWidgets.QMainWindow()
+        self.CreateDeleteWindow = QMainWindow()
         self.window = create_delete_ui.Ui_create_delete_window()
         self.window.setupUi(self.CreateDeleteWindow)
         self.vars = vars(self.window)
@@ -70,6 +70,7 @@ class CreateDelete(BaseEdit):
 
 
     def connect_events(self):
+        self.window.submit_create.clicked.connect(self.create_entry)
         for field in self.fields:
             for yes_no in ['_yes', '_no']:
                 fixed_field = field + yes_no
@@ -115,3 +116,15 @@ class CreateDelete(BaseEdit):
             for index in count:
                 data[field].append(self.vars[fixed_field].item(index).text())
         return data
+
+
+
+    def create_entry(self):
+        # adds database entries based on create_delete window data
+        data = self.get_create_data()
+        for key in data:
+            data[key] = data[key].split('\n')
+            for entry in data[key]:
+                if entry != '':
+                    db.create(key, entry)
+        self.hide()

@@ -1,9 +1,12 @@
 # superclass of edit, batch_edit, and create_delete
 # allows all of the above to have shared functions between them
 
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets
+from PyQt5.QtCore import Qt
 from functools import partial
 import db_handler as db
+
+
 
 class BaseEdit:
     def __init__(self):

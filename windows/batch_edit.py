@@ -1,7 +1,5 @@
-from PyQt5 import QtWidgets, QtCore
-import db_handler as db
+from PyQt5.QtWidgets import QMainWindow
 import ui.batch_edit_ui as batch_edit_ui
-from functools import partial
 from windows.base_edit import BaseEdit
 
 
@@ -9,7 +7,7 @@ from windows.base_edit import BaseEdit
 class BatchEdit(BaseEdit):
     def __init__(self):
         super().__init__()
-        self.BatchEditWindow = QtWidgets.QMainWindow()
+        self.BatchEditWindow = QMainWindow()
         self.window = batch_edit_ui.Ui_batch_edit_window()
         self.window.setupUi(self.BatchEditWindow)
         self.vars = vars(self.window)
@@ -26,7 +24,6 @@ class BatchEdit(BaseEdit):
         # for clearing fields
         self.all_clear_fields = ['order', 'year', 'series', 'series', 'series_list', 'director', 'director_list', 'studio', 'studio_list', 'language', 'language_list', 'media_type', 'media_type_list', 'country', 'country_list', 'genres_yes', 'genres_yes_list', 'genres_no', 'genres_no_list', 'tags_yes', 'tags_yes_list', 'tags_no', 'tags_no_list', 'actors_yes', 'actors_yes_list', 'actors_no', 'actors_no_list']
         self.all_radio_buttons = ['rating_none', 'rating_1', 'rating_2', 'rating_3', 'rating_4', 'rating_5', 'animated_yes', 'animated_no', 'subtitles_yes', 'subtitles_no']
-
 
         self.create_menus()
         self.connect_events()

@@ -2,6 +2,7 @@ from PyQt5 import QtWidgets
 import ui.main_ui as main_ui
 import db_handler as db
 import utilities as util
+import config as cfg
 
 
 TABLE_FIELDS = ['title', 'alt_title', 'series', 'order', 'media_type', 'animated', 'country', 'language', 'subtitles', 'year', 'genres', 'director', 'studio', 'actors', 'plot', 'rating', 'tags', 'notes']
@@ -79,6 +80,12 @@ class Main:
 
 
 
+    def connect_events(self):
+        self.main.window.set_directory_button.triggered.connect(self.set_directory)
+        self.window.table.cellDoubleClicked.connect(self.find_media)
+
+
+
     def update(self, rows: [int], data: dict):
         # updates entries of table at row with data
         for row in rows:
@@ -109,3 +116,18 @@ class Main:
     def get_media_title(self, index: int) -> str:
         # returns the title of the entry at row int
         return self.window.table.item(index, 0).text()
+
+
+
+    def set_directory(self):
+        options = QtWidgets.QFileDialog.Options()
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self.main.MainWindow, "QtWidgets.QFileDialog.getOpenFileName()", options=options)
+        if directory:
+            cfg.directory = directory
+
+
+
+    def find_media(self):
+        data = self.main.get_table_selection()
+        path = util.to_path(data['media_type'], data['title'])
+        os.startfile(path)
