@@ -60,7 +60,6 @@ class CreateDelete(BaseEdit):
     def clear(self):
         # clears all the fields in the edit screen
         self.title = None
-
         for field in self.fields:
             self.vars[field + '_create'].clear()
             for yes_no in ['_yes', '_no']:
@@ -120,7 +119,7 @@ class CreateDelete(BaseEdit):
 
 
     def create_entry(self):
-        # adds database entries based on create_delete window data
+        # adds database field entries based on create_delete window data
         data = self.get_create_data()
         for key in data:
             data[key] = data[key].split('\n')

@@ -1,7 +1,6 @@
 # modules not created by me
 from PyQt5 import QtWidgets
 from sys import exit
-import os
 
 # windows
 import windows.main as main
@@ -47,7 +46,7 @@ class GUI:
 
 
     def edit_show(self):
-        # populates the edit window and then shows it
+        # based on how many rows are selected, decides whether to show the edit or batch edit window
         self.rows = self.main.selected_rows()
         if len(self.rows) > 1:
             self.batch_edit.show()
@@ -63,7 +62,7 @@ class GUI:
             old_path = util.to_path(db.get_dict(self.edit.title)['media_type'], self.edit.title)
             new_path = util.to_path(data['media_type'], data['title'])
             if old_path != new_path:
-                os.rename(old_path, new_path)
+                util.move(old_path, new_path) # move and/or rename folder if needed
             db.update(self.edit.title, data)
             self.main.update(self.rows, db.get_dict(data['title']))
             self.edit.hide()
@@ -74,14 +73,16 @@ class GUI:
 
 
     def set_batch_edit(self):
+        # sets database fields to that value if it's a foreignkeyfield
+        # adds values to database fields if it's a manytomanyfield
         data = self.batch_edit.get_dict()
         for row in self.rows:
-            if 'media_type' in data.keys():
-                if data['media_type'] and data['media_type'] != '':
+            if 'media_type' in data.keys(): # determine if we need to move the files
+                if data['media_type'] and data['media_type'] != '': # make sure data['media_type'] isn't blank
                     title = self.main.get_media_title(row)
                     old_path = util.to_path(db.get_dict(title)['media_type'], title)
                     new_path = util.to_path(data['media_type'], title)
-                    os.rename(old_path, new_path)
+                    util.move(old_path, new_path) # move folder if needed
             db.update_set(self.main.get_media_title(row), data)
             self.main.update([row], db.get_dict(self.main.get_media_title(row)))
         self.batch_edit.hide()
@@ -89,11 +90,12 @@ class GUI:
 
 
     def remove_batch_edit(self):
+        # removes values from database fields
         data = self.batch_edit.get_dict()
         fixed_data = {}
         for key in data:
-            if key not in ['media_type', 'animated', 'country', 'subtitles']: # required fields
-                fixed_data[key] = data[key]
+            if key not in ['media_type', 'animated', 'country', 'subtitles']: # can't remove required fields
+                fixed_data[key] = data[key] # done this way because deleting dictionary entries during a loop causes a runtime error
         for row in self.rows:
             db.update_remove(self.main.get_media_title(row), fixed_data)
             self.main.update([row], db.get_dict(self.main.get_media_title(row)))
@@ -102,13 +104,13 @@ class GUI:
 
 
     def delete_entry(self):
-        # deletes database entries based on create_delete window data
+        # deletes database field entries based on create_delete window data
         data = self.create_delete.get_delete_data()
         for key in data:
             for entry in data[key]:
                 db.delete_field(key, entry)
-        self.main.clear_table()
-        self.main.populate_table()
+        self.main.clear_table() # we don't know which media entries were effected, so we recreate the table entirely
+        self.main.populate_table() # we could know which entries were effected, but this way is faster
         self.create_delete.hide()
 
 
@@ -118,18 +120,18 @@ class GUI:
         # note: we only connect events here that require access to classes outside of the source.
 
         # from main window
-        self.main.window.edit_button.clicked.connect(self.edit_show)
-        self.main.window.create_delete_button.triggered.connect(self.create_delete.show)
+        self.main.window.edit_button.clicked.connect(self.edit_show) # shows edit or batch edit window
+        self.main.window.create_delete_button.triggered.connect(self.create_delete.show) # shows create and delete window
 
         # from edit window
-        self.edit.window.submit.clicked.connect(self.submit_edit)
+        self.edit.window.submit.clicked.connect(self.submit_edit) # submit button in edit window
 
         # from batch edit window
-        self.batch_edit.window.set.clicked.connect(self.set_batch_edit)
-        self.batch_edit.window.remove.clicked.connect(self.remove_batch_edit)
+        self.batch_edit.window.set.clicked.connect(self.set_batch_edit) # set button in batch edit window
+        self.batch_edit.window.remove.clicked.connect(self.remove_batch_edit) # remove button in batch edit window
 
         # from create and dlete window
-        self.create_delete.window.submit_delete.clicked.connect(self.delete_entry)
+        self.create_delete.window.submit_delete.clicked.connect(self.delete_entry) # submit button in create and delete window
 
 
 

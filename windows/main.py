@@ -74,20 +74,21 @@ class Main:
 
     def clear_table(self):
         count = list(range(self.window.table.rowCount()))
-        count.reverse() # needs to work backwards because when we delete entry at 0, the next entry will become entry 0
+        count.reverse() # if we don't reverse and start deleting at 0, then everything gets shifted down a position during runtime
         for index in count:
             self.window.table.removeRow(index)
 
 
 
     def connect_events(self):
-        self.main.window.set_directory_button.triggered.connect(self.set_directory)
-        self.window.table.cellDoubleClicked.connect(self.find_media)
+        self.main.window.set_directory_button.triggered.connect(self.set_directory) # opens file explorer if you wanted to change the file directory
+        self.window.table.cellDoubleClicked.connect(self.find_media) # opens a file's location when you double click an entry
 
 
 
     def update(self, rows: [int], data: dict):
-        # updates entries of table at row with data
+        # updates table entries
+        # make sure data is from database!!
         for row in rows:
             for key in data:
                 self.window.table.item(row, FIELD_NUM[key]).setText(util.stringify(data[key]))
@@ -95,6 +96,7 @@ class Main:
 
 
     def get_table_selection(self) -> dict:
+        # returns a dictionary with all the data of the selected entry
         row = self.window.table.currentRow()
         data = {}
         for index in range(len(TABLE_FIELDS)):
@@ -120,6 +122,7 @@ class Main:
 
 
     def set_directory(self):
+        # opens file explorer if you wanted to change the file directory
         options = QtWidgets.QFileDialog.Options()
         directory = QtWidgets.QFileDialog.getExistingDirectory(self.main.MainWindow, "QtWidgets.QFileDialog.getOpenFileName()", options=options)
         if directory:
@@ -128,6 +131,7 @@ class Main:
 
 
     def find_media(self):
+        # opens a file's location when you double click an entry
         data = self.main.get_table_selection()
         path = util.to_path(data['media_type'], data['title'])
         os.startfile(path)

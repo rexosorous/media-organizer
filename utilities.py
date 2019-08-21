@@ -24,6 +24,10 @@ def stringify(data) -> str:
         data = str(data)
     return data
 
+def to_path(media_type: str, title: str):
+    # dynamically creates a file location depending on what media type it is and what the title is
+    return os.path.realpath(cfg.directory + 'Media' + '\\' + util.to_windows(media_type) + '\\' + util.to_windows(title))
 
-def to_path(media_type: str, filename: str):
-    return os.path.realpath(cfg.directory + 'Media' + '\\' + util.to_windows(media_type) + '\\' + util.to_windows(filename))
+def move(old_path, new_path):
+    # moves and/or renames a file if it's title or media type are changed
+    os.rename(old_path, new_path)

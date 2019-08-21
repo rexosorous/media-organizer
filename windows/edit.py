@@ -112,7 +112,7 @@ class Edit(BaseEdit):
             'notes': self.window.notes.toPlainText()
         }
 
-        for index in range(1, 6):
+        for index in range(1, 6): # rating radio buttons
             if self.vars['rating_' + str(index)].isChecked():
                 data['rating'] = index
                 break

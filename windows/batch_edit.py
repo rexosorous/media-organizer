@@ -64,16 +64,22 @@ class BatchEdit(BaseEdit):
             'tags': ', '.join([self.window.tags_yes_list.item(index).text() for index in range(self.window.tags_yes_list.count())]),
         }
 
-        for index in range(1, 6):
+        for index in range(1, 6): # rating radio buttons
             if self.vars['rating_' + str(index)].isChecked():
                 data['rating'] = index
                 break
 
+        # true/false radio buttons
+        # make sure the checks are done this way because None != False
+        # if a field is None, it means we don't want to include it in our editing
+
+        # animated radio buttons
         if self.window.animated_yes.isChecked() and not self.window.animated_no.isChecked():
             data['animated'] = True
         elif self.window.animated_no.isChecked() and not self.window.animated_yes.isChecked():
             data['animated'] = False
 
+        # subtitles radio buttons
         if self.window.subtitles_yes.isChecked() and not self.window.subtitles_no.isChecked():
             data['subtitles'] = True
         elif self.window.subtitles_no.isChecked() and not self.window.subtitles_yes.isChecked():
@@ -81,7 +87,7 @@ class BatchEdit(BaseEdit):
 
         fixed_data = {}
         for key in data:
-            if data[key] != None and data[key] != '':
+            if data[key] != None and data[key] != '': # make sure we leave out any fields that are none or empty
                 fixed_data[key] = data[key]
 
         return fixed_data
