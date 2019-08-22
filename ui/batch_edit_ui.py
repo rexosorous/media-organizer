@@ -14,7 +14,7 @@ class Ui_batch_edit_window(object):
     def setupUi(self, batch_edit_window):
         batch_edit_window.setObjectName("batch_edit_window")
         batch_edit_window.setWindowModality(QtCore.Qt.ApplicationModal)
-        batch_edit_window.resize(1050, 701)
+        batch_edit_window.resize(1050, 719)
         palette = QtGui.QPalette()
         brush = QtGui.QBrush(QtGui.QColor(223, 223, 223))
         brush.setStyle(QtCore.Qt.SolidPattern)
@@ -47,7 +47,6 @@ class Ui_batch_edit_window(object):
         batch_edit_window.setAutoFillBackground(True)
         batch_edit_window.setModal(True)
         self.gridLayout = QtWidgets.QGridLayout(batch_edit_window)
-        self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
         self.frame_2 = QtWidgets.QFrame(batch_edit_window)
         self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)

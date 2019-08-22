@@ -4,6 +4,10 @@ from functools import partial
 import ui.create_ui as create_ui
 from windows.base_edit import BaseEdit
 
+# website scrapers
+import scrapers.mal_scraper as mal
+import scrapers.imdb_scraper as imdb
+
 
 
 class Create(BaseEdit):
@@ -35,34 +39,66 @@ class Create(BaseEdit):
 
 
 
-    def show(self, imdb_data: [dict], mal_data: [dict]):
-        self.imdb_data = imdb_data
-        self.mal_data = mal_data
-        self.rename_buttons()
-        self.connect_scrape_buttons()
+    def show(self, filename):
+        self.window.title.setText(filename)
+        self.connect_other_events()
         self.CreateWindow.exec_()
 
 
 
-    def rename_buttons(self):
+    def connect_other_events(self):
+        self.window.clear.clicked.connect(self.clear)
+        self.window.imdb_scan.clicked.connect(self.scan_imdb)
+        self.window.mal_scan.clicked.connect(self.scan_mal)
+        # for index in range(3): # imdb and mal buttons
+        #     self.vars['imdb_'+str(index)].clicked.connect(partial(self.repopulate, self.imdb_data[index]))
+        #     self.vars['mal_'+str(index)].clicked.connect(partial(self.repopulate, self.mal_data[index]))
+
+
+
+    def scan_imdb(self):
+        # when a scan button is pressed, search for the 3 most likely results from whatever is in the title field
+        self.imdb_data = imdb.search(self.window.title.displayText())
+        self.rename_imdb_buttons() # rename the buttons with appropriate data
+        for index in range(3):
+            self.vars['imdb_'+str(index)].clicked.connect(partial(self.repopulate, self.imdb_data[index]))
+
+
+
+    def scan_mal(self):
+        # when a scan button is pressed, search for the 3 most likely results from whatever is in the title field
+        self.mal_data = mal.search(self.window.title.displayText())
+        self.rename_mal_buttons() # rename the buttons with appropriate data
+        for index in range(3):
+            self.vars['mal_'+str(index)].clicked.connect(partial(self.repopulate, self.mal_data[index]))
+
+
+
+    def rename_imdb_buttons(self):
         # sets the text of each button to reflect some very basic info about that scraped data
-        for site in ['imdb', 'mal']:
-            for index in range(5):
-                data = self.vars[site+'_data'][index]
-                display = ['Title: ' + data['title'],
-                            'Alt Title: ' + data['alt_title'],
-                            'Year: ' + data['year'],
-                            'Director: ' + data['director']]
-                text = '\n'.join(display)
-                self.vars[site+'_'+index].setText(text)
+        for index in range(3):
+            data = self.imdb_data[index]
+            display = [ 'Title: ' + data['title'],
+                        'Alt Title: ' + data['alt_title'],
+                        'Year: ' + data['year'],
+                        'Media Type: ' + data['media_type'],
+                        'Director: ' + data['director']]
+            text = '\n'.join(display)
+            self.vars['imdb_'+str(index)].setText(text)
 
 
 
-    def connect_scrape_buttons(self):
-        # when a button is pressed, it'll repopulate the window with information scraped from that site
-        for site in ['imdb', 'mal']:
-            for index in range(5):
-                self.vars[site+'_'+index].clicked.connect(partial(self.repopulate, self.vars[site+'_data'][index]))
+    def rename_mal_buttons(self):
+        # sets the text of each button to reflect some very basic info about that scraped data
+        for index in range(3):
+            data = self.mal_data[index]
+            display = [ 'Title: ' + data['title'],
+                        'Alt Title: ' + data['alt_title'],
+                        'Year: ' + data['year'],
+                        'Media Type: ' + data['media_type'],
+                        'Director: ' + data['director']]
+            text = '\n'.join(display)
+            self.vars['mal_'+str(index)].setText(text)
 
 
 
@@ -70,9 +106,6 @@ class Create(BaseEdit):
         # populates the create screen's fields with information scraped from imdb or myanimelist
         self.clear()
         self.populate()
-
-        if 'title' in scraped_info:
-            self.title = scraped_info['title']
 
         for key in scraped_info:
             if key in ['title', 'alt_title', 'order', 'year', 'plot', 'notes']: # text fields
@@ -84,8 +117,7 @@ class Create(BaseEdit):
                     self.vars[field].setCurrentItem(highlight[0])
             elif key == 'language': # multi select lists
                 if scraped_info['language']:
-                    langs = scraped_info['language'].split(', ')    # languages is a many to many field
-                    for lang in langs:
+                    for lang in scraped_info['language']:
                         highlight = self.window.language_list.findItems(lang, Qt.MatchExactly)
                         highlight[0].setSelected(True)
             elif key == 'rating':
@@ -100,10 +132,9 @@ class Create(BaseEdit):
                     field = key + '_yes'
                 self.vars[field].setChecked(True)
             elif key in ['genres', 'actors', 'tags']:
-                transfer = scraped_info[key].split(', ')
                 field_no = key + '_no_list'
                 field_yes = key + '_yes_list'
-                for val in transfer:
+                for val in scraped_info[key]:
                     if val:
                         take = self.vars[field_no].findItems(val, Qt.MatchExactly)
                         place = self.vars[field_no].takeItem(self.vars[field_no].row(take[0]))
