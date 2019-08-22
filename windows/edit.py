@@ -38,7 +38,8 @@ class Edit(BaseEdit):
         self.clear()
         self.populate()
 
-        self.title = selection['title']
+        if 'title' in selection:
+            self.title = selection['title']
 
         for key in selection:
             if key in ['title', 'alt_title', 'order', 'year', 'plot', 'notes']: # text fields

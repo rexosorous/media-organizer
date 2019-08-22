@@ -196,7 +196,17 @@ def get_dict(media) -> dict:
 
 
 def get_all(table: str) -> [str]:
-    return [x.name for x in globals()[table].select()]          # AHHHHHHHHHHHHHH
+    # returns all names of every entry in a given table
+    return [x.name for x in globals()[table].select()]
+
+
+
+def get_by_media_type() -> dict:
+    # returns all media names sorted by their media type in a dictionary
+    rdict = {} # return dict
+    for media_type in MediaTypes.select():
+        rdict[media_type.name] = [media.title for media in Media.select().where(Media.media_type==media_type)]
+    return rdict
 
 
 
@@ -228,10 +238,12 @@ def clear_mtm(media):
 
 
 
-def delete_media(media):
+def delete_media(titles: [str]):
     # properly deletes a media entry
-    clear_mtm(media)
-    media.delete_instance()
+    for title in titles:
+        media = Media.get(title=title)
+        clear_mtm(media)
+        media.delete_instance()
 
 
 

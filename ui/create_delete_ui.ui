@@ -340,6 +340,9 @@
                <height>50</height>
               </size>
              </property>
+             <property name="styleSheet">
+              <string notr="true">background:rgb(0, 255, 0);</string>
+             </property>
              <property name="text">
               <string>Submit</string>
              </property>
@@ -2540,6 +2543,9 @@ QListWidget::item:selected{color:black} </string>
                <width>50</width>
                <height>50</height>
               </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">background:rgb(255, 0, 0);</string>
              </property>
              <property name="text">
               <string>Submit</string>

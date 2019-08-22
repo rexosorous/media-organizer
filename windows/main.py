@@ -37,6 +37,14 @@ class Main:
 
         self.populate_table()
         self.resize_columns()
+        self.connect_events()
+
+
+
+    def connect_events(self):
+        self.window.table.cellDoubleClicked.connect(self.find_media) # opens a file's location when you double click an entry
+        self.window.set_directory_button.triggered.connect(self.set_directory) # opens file explorer if you wanted to change the file directory
+        self.window.refresh_button.triggered.connect(self.refresh_table) # refreshes the table
 
 
 
@@ -80,9 +88,9 @@ class Main:
 
 
 
-    def connect_events(self):
-        self.main.window.set_directory_button.triggered.connect(self.set_directory) # opens file explorer if you wanted to change the file directory
-        self.window.table.cellDoubleClicked.connect(self.find_media) # opens a file's location when you double click an entry
+    def refresh_table(self):
+        self.clear_table
+        self.populate_table
 
 
 
@@ -124,14 +132,15 @@ class Main:
     def set_directory(self):
         # opens file explorer if you wanted to change the file directory
         options = QtWidgets.QFileDialog.Options()
-        directory = QtWidgets.QFileDialog.getExistingDirectory(self.main.MainWindow, "QtWidgets.QFileDialog.getOpenFileName()", options=options)
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self.MainWindow, "QtWidgets.QFileDialog.getOpenFileName()", options=options)
         if directory:
             cfg.directory = directory
+            self.scan()
 
 
 
     def find_media(self):
         # opens a file's location when you double click an entry
-        data = self.main.get_table_selection()
+        data = self.get_table_selection()
         path = util.to_path(data['media_type'], data['title'])
-        os.startfile(path)
+        util.open(path)
