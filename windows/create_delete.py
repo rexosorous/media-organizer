@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QDialog
 from functools import partial
 import db_handler as db
 import ui.create_delete_ui as create_delete_ui
@@ -9,7 +9,7 @@ from windows.base_edit import BaseEdit
 class CreateDelete(BaseEdit):
     def __init__(self):
         super().__init__()
-        self.CreateDeleteWindow = QMainWindow()
+        self.CreateDeleteWindow = QDialog()
         self.window = create_delete_ui.Ui_create_delete_window()
         self.window.setupUi(self.CreateDeleteWindow)
         self.vars = vars(self.window)
@@ -68,6 +68,7 @@ class CreateDelete(BaseEdit):
                 self.vars[ynfield+'_list'].clear()
 
 
+
     def connect_events(self):
         self.window.submit_create.clicked.connect(self.create_entry)
         for field in self.fields:
@@ -84,14 +85,14 @@ class CreateDelete(BaseEdit):
         # populates the edit screen's fields with what is selected in main table
         self.clear()
         self.populate()
-        self.CreateDeleteWindow.show()
+        self.CreateDeleteWindow.exec_()
 
 
 
     def hide(self):
         # clears all the fields then hides the window
         self.clear()
-        self.CreateDeleteWindow.hide()
+        self.CreateDeleteWindow.done(0)
 
 
 

@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QDialog
 import ui.batch_edit_ui as batch_edit_ui
 from windows.base_edit import BaseEdit
 
@@ -7,7 +7,7 @@ from windows.base_edit import BaseEdit
 class BatchEdit(BaseEdit):
     def __init__(self):
         super().__init__()
-        self.BatchEditWindow = QMainWindow()
+        self.BatchEditWindow = QDialog()
         self.window = batch_edit_ui.Ui_batch_edit_window()
         self.window.setupUi(self.BatchEditWindow)
         self.vars = vars(self.window)
@@ -33,14 +33,14 @@ class BatchEdit(BaseEdit):
     def show(self):
         self.clear()
         self.populate()
-        self.BatchEditWindow.show()
+        self.BatchEditWindow.exec_()
 
 
 
     def hide(self):
         # clears all the fields then hides the window
         self.clear()
-        self.BatchEditWindow.hide()
+        self.BatchEditWindow.done(0)
 
 
 

@@ -16,8 +16,12 @@ import utilities as util
 
 ''' TODO
     MOST IMPORTANT TODO: NAME IT MOEHUNTER
+    implement imdb and mal scrapers for new entries
+    take a look at submit_edit to see if we can input a db entry based on scrapers and edit it from there,
+        or if we have to make a new entry when submit is pressed. aka, can we get all required fields from scraping?
+        edit: no we can't make an entry based on scrapers because if we can't find it with scrapers,
+            then we need to enter everything from scratch and "editing" won't work that way.
     take a good look at db_handler module to see what can be made simpler or better
-    handle new entries
     pressing tab and shift-tab moves cursor to next area (select each radio button)
     scan for deleted media
     settings to allow which columns are shown

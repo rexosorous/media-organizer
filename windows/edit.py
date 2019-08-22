@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QCloseEvent
 import ui.edit_ui as edit_ui
 from windows.base_edit import BaseEdit
 
@@ -8,7 +9,7 @@ from windows.base_edit import BaseEdit
 class Edit(BaseEdit):
     def __init__(self):
         super().__init__()
-        self.EditWindow = QMainWindow()
+        self.EditWindow = QDialog()
         self.window = edit_ui.Ui_edit_window()
         self.window.setupUi(self.EditWindow)
         self.vars = vars(self.window)
@@ -78,7 +79,7 @@ class Edit(BaseEdit):
 
         # display
         self.window.title.setFocus()
-        self.EditWindow.show()
+        self.EditWindow.exec_()
 
 
 
@@ -86,7 +87,7 @@ class Edit(BaseEdit):
         # clears all the fields then hides the window
         self.title = ''
         self.clear()
-        self.EditWindow.hide()
+        self.EditWindow.done(0)
 
 
 
