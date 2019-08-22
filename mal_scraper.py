@@ -1,45 +1,76 @@
 from jikanpy import Jikan # python wrapper for an unofficial myanimelist API        link: https://github.com/AWConant/jikanpy
-import json
-import os
-import filename
-from time import sleep
+import db_handler as db
 
-ADDRESS = r'G:\Films\TEMP\TV Shows'
+
 
 mal = Jikan()
 
-def owned():
-    return os.listdir(ADDRESS)
+
 
 def search(anime: str):
-    search_results = mal.search('anime', anime)['results'][:5]
-    search_dict = {0: mal.anime(search_results[0]['mal_id'])} # intialize the dict with one entry
+    # searches myanimelist for the first 5 most likely results and returns a list of processed info dictionaries
+    search = mal.search('anime', anime)['results'][:5] # get the first 5 entries that pop up
+    search_results = [(mal.anime(anime['mal_id']), mal.anime(anime['mal_id'], extension='characters_staff')) for anime in search] # get more detailed info on each of those searches
+    fixed_results = []
+    # mtm fields
+    genres = db.get_all('Genres')
+    directors = db.get_all('Directors')
+    actors = db.get_all('Actors')
+    studios = db.get_all('Studios')
 
-    selection = 0
-    if filename.from_windows(anime).lower() not in [search_dict[0]['title'].lower(), search_dict[0]['title_english']]: # if the title matches the first search result exactly, no need to prompt for user input
-        print(f"Current Title: {anime}\n")
-        print('Search Results:')
-        for index, result in enumerate(search_results): # only now add the rest of the search results to the dict to cut down on amount of requests
-            if index != 0:
-                search_dict[index] = mal.anime(search_results[index]['mal_id'])
-            print(f"     {index} || {search_dict[index]['title']} || {search_dict[index]['title_english']}")
-        print('     5 || not listed')
-        selection = int(input('choose one of the above: '))
-        if selection > 4 or selection < 0: # if result not listed, manual intervention required
-            return
+    # convert the dicts gotten from scraper into readable dicts we can use
+    for anime in search_results:
+        info = {
+            'title': anime[0]['title'],
+            'alt_title': anime[0]['title_english'],
+            'animated': True,
+            'country': 'Japan',
+            'language': 'Japanese',
+            'subtitles': True,
+            'year': anime[0]['aired']['from'][:4],
+            'genres': [g['name'] for g in genres if g in anime[0]['genres']],
+            'actors': [],
+            'plot': anime[0]['synopsis']
+        }
 
-    os.rename(ADDRESS+'\\'+anime, ADDRESS+'\\'+filename.to_windows(search_dict[selection]['title'])) # renames the folder to the title that appears on mal
-    return (search_dict[selection], mal.anime(search_results[selection]['mal_id'], extension='characters_staff')['staff']) # returns a tuple of (anime entry, staff)
+        # ignore other media types like OVA and ONA
+        if anime[0]['type'] == 'Movie':
+            info['media_type'] = 'Movie'
+        elif anime[0]['type'] == 'TV': # convert 'TV' to 'TV Series'
+            info['media_type'] = 'TV Series'
 
-def batch_search(anime_list: [str]):
-    output = []
-    last = len(anime_list)
-    for index, anime in enumerate(anime_list):
-        print(f"{index} of {last}")
-        sleep(1) # avoid timing out
-        result = search(anime)
-        if result:
-            output.append(result)
-        os.system('cls')
-    print('task completed')
-    return output
+        # directors
+        for director in [d['name'] for d in anime[1]['staff'] if 'Director' in d['positions']]:
+            if name_fixer(director) in directors:
+                info['director'] = name_fixer(director)
+                break
+        if 'director' not in info.keys():
+            info['director'] = '' # make sure it's at least a blank string because we need it to display to create window
+
+        # voice actors
+        for character in anime[1]['characters']:
+            for actor in character['voice_actors']:
+                if name_fixer(actor['name']) in actors:
+                    info['actors'].append(name_fixer(actor['name']))
+        if not info['actors']:
+            del info['actors']
+
+        # studios
+        for studio in [s['name'] for s in anime[0]['studios']]:
+            if studio in studios:
+                info['studio'] = studio
+                break
+
+        fixed_results.append(info)
+
+    return fixed_results
+
+
+
+
+def name_fixer(name: str) -> str:
+    # japanese names are formatted like "[last name], [first name]"" so we need to change that
+    name_split = name.split(', ')
+    if len(name_split) == 1:
+        return name
+    return name_split[1] + ' ' + name_split[0]

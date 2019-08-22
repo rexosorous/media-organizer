@@ -177,12 +177,13 @@ class GUI:
 
         if pop_up.clickedButton().text() == '&Yes':
             for media_type in new:
-                for media in new[media_type]:
+                for media_name in new[media_type]:
                     if media_type != 'New':
-                        old_path = util.to_path(media_type, media)
-                        new_path = util.to_path('New', media)
+                        old_path = util.to_path(media_type, media_name)
+                        new_path = util.to_path('New', media_name)
                         util.move(old_path, new_path) # move them from where we found it to the new folder
-                    # scrape imdb or mal      MAKE SURE TITLE, ALT_TITLE, YEAR, AND DIRECTOR ARE '' AND NOT None
+                    mal_results = mal.search(media_name)
+                    # scrape imdb      MAKE SURE TITLE, ALT_TITLE, YEAR, AND DIRECTOR ARE '' AND NOT None
                     # show create window with scraped data
                     # reload main table
 
