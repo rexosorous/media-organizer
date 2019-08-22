@@ -12,6 +12,7 @@ import windows.create as create
 # toher modules crreated by me
 import db_handler as db
 import utilities as util
+import scrapers.mal_scraper as mal
 
 
 
@@ -182,10 +183,10 @@ class GUI:
                         old_path = util.to_path(media_type, media_name)
                         new_path = util.to_path('New', media_name)
                         util.move(old_path, new_path) # move them from where we found it to the new folder
-                    mal_results = mal.search(media_name)
                     # scrape imdb      MAKE SURE TITLE, ALT_TITLE, YEAR, AND DIRECTOR ARE '' AND NOT None
-                    # show create window with scraped data
-                    # reload main table
+                    mal_results = mal.search(media_name)
+                    self.create.show(imdb_results, mal_results)
+        self.main.refresh_table()
 
 
 

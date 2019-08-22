@@ -89,8 +89,8 @@ class Main:
 
 
     def refresh_table(self):
-        self.clear_table
-        self.populate_table
+        self.clear_table()
+        self.populate_table()
 
 
 
