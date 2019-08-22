@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>795</width>
-    <height>638</height>
+    <width>778</width>
+    <height>558</height>
    </rect>
   </property>
   <property name="palette">
@@ -352,35 +352,6 @@
             </property>
            </widget>
           </item>
-          <item row="7" column="1">
-           <widget class="QPushButton" name="submit_create">
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>50</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background:rgb(0, 255, 0);</string>
-            </property>
-            <property name="text">
-             <string>Submit</string>
-            </property>
-           </widget>
-          </item>
-          <item row="6" column="1">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
           <item row="2" column="1">
            <widget class="QTextEdit" name="country_create">
             <property name="tabChangesFocus">
@@ -409,6 +380,35 @@ Origin</string>
              <string>Languages</string>
             </property>
            </widget>
+          </item>
+          <item row="7" column="0" colspan="2">
+           <widget class="QPushButton" name="submit_create">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background:rgb(0, 255, 0);</string>
+            </property>
+            <property name="text">
+             <string>Submit</string>
+            </property>
+           </widget>
+          </item>
+          <item row="6" column="0" colspan="2">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>
@@ -2556,35 +2556,6 @@ QListWidget::item:selected{color:black} </string>
             </layout>
            </widget>
           </item>
-          <item row="5" column="1">
-           <widget class="QPushButton" name="submit_delete">
-            <property name="minimumSize">
-             <size>
-              <width>50</width>
-              <height>50</height>
-             </size>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">background:rgb(255, 0, 0);</string>
-            </property>
-            <property name="text">
-             <string>Submit</string>
-            </property>
-           </widget>
-          </item>
-          <item row="4" column="1">
-           <spacer name="horizontalSpacer_2">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
           <item row="1" column="0">
            <widget class="QLabel" name="label_6">
             <property name="text">
@@ -2606,6 +2577,35 @@ Origin</string>
              <string>Languages</string>
             </property>
            </widget>
+          </item>
+          <item row="5" column="0" colspan="2">
+           <widget class="QPushButton" name="submit_delete">
+            <property name="minimumSize">
+             <size>
+              <width>50</width>
+              <height>50</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background:rgb(255, 0, 0);</string>
+            </property>
+            <property name="text">
+             <string>Submit</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" colspan="2">
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
           </item>
          </layout>
         </widget>

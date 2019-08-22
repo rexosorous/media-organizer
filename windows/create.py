@@ -1,18 +1,21 @@
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import Qt
-import ui.edit_ui as edit_ui
+from functools import partial
+import ui.create_ui as create_ui
 from windows.base_edit import BaseEdit
 
 
 
-class Edit(BaseEdit):
+class Create(BaseEdit):
     def __init__(self):
         super().__init__()
-        self.EditWindow = QDialog()
-        self.window = edit_ui.Ui_edit_window()
-        self.window.setupUi(self.EditWindow)
+        self.CreateWindow = QDialog()
+        self.window = create_ui.Ui_create_window()
+        self.window.setupUi(self.CreateWindow)
         self.vars = vars(self.window)
-        self.title = '' # holds the original title of a selected movie because the title might be edited in this window
+
+        self.imdb_data = []
+        self.mal_data =[]
 
         # for events
         self.double_clicks = ['genres_yes_list', 'genres_no_list', 'actors_yes_list', 'actors_no_list', 'tags_yes_list', 'tags_no_list']
@@ -32,42 +35,72 @@ class Edit(BaseEdit):
 
 
 
-    def show(self, selection: dict):
-        # populates the edit screen's fields with what is selected in main table
-        self.title = ''
+    def show(self, imdb_data: [dict], mal_data: [dict]):
+        self.imdb_data = imdb_data
+        self.mal_data = mal_data
+        self.rename_buttons()
+        self.connect_scrape_buttons()
+        self.CreateWindow.exec_()
+
+
+
+    def rename_buttons(self):
+        # sets the text of each button to reflect some very basic info about that scraped data
+        for site in ['imdb', 'mal']:
+            for index in range(5):
+                data = self.vars[site+'_data'][index]
+                display = ['Title: ' + data['title'],
+                            'Alt Title: ' + data['alt_title'],
+                            'Year: ' + data['year'],
+                            'Director: ' + data['director']]
+                text = '\n'.join(display)
+                self.vars[site+'_'+index].setText(text)
+
+
+
+    def connect_scrape_buttons(self):
+        # when a button is pressed, it'll repopulate the window with information scraped from that site
+        for site in ['imdb', 'mal']:
+            for index in range(5):
+                self.vars[site+'_'+index].clicked.connect(partial(self.repopulate, self.vars[site+'_data'][index]))
+
+
+
+    def repopulate(self, scraped_info: dict):
+        # populates the create screen's fields with information scraped from imdb or myanimelist
         self.clear()
         self.populate()
 
-        if 'title' in selection:
-            self.title = selection['title']
+        if 'title' in scraped_info:
+            self.title = scraped_info['title']
 
-        for key in selection:
+        for key in scraped_info:
             if key in ['title', 'alt_title', 'order', 'year', 'plot', 'notes']: # text fields
-                self.vars[key].setText(selection[key])
+                self.vars[key].setText(scraped_info[key])
             elif key in ['series', 'director', 'studio', 'media_type', 'country']: # lists
                 field = key + '_list'
-                highlight = self.vars[field].findItems(selection[key], Qt.MatchExactly)
+                highlight = self.vars[field].findItems(scraped_info[key], Qt.MatchExactly)
                 if len(highlight) == 1:
                     self.vars[field].setCurrentItem(highlight[0])
             elif key == 'language': # multi select lists
-                if selection['language']:
-                    langs = selection['language'].split(', ')    # languages is a many to many field
+                if scraped_info['language']:
+                    langs = scraped_info['language'].split(', ')    # languages is a many to many field
                     for lang in langs:
                         highlight = self.window.language_list.findItems(lang, Qt.MatchExactly)
                         highlight[0].setSelected(True)
             elif key == 'rating':
                 try:
-                    field = 'rating_' + selection['rating']
+                    field = 'rating_' + scraped_info['rating']
                     self.vars[field].setChecked(True)
                 except KeyError:
                     self.window.rating_none.setChecked(True)
             elif key in ['animated', 'subtitles']:
                 field = key + '_no'
-                if selection[key] == 'True':
+                if scraped_info[key] == 'True':
                     field = key + '_yes'
                 self.vars[field].setChecked(True)
             elif key in ['genres', 'actors', 'tags']:
-                transfer = selection[key].split(', ')
+                transfer = scraped_info[key].split(', ')
                 field_no = key + '_no_list'
                 field_yes = key + '_yes_list'
                 for val in transfer:
@@ -76,14 +109,13 @@ class Edit(BaseEdit):
                         place = self.vars[field_no].takeItem(self.vars[field_no].row(take[0]))
                         self.vars[field_yes].addItem(place)
 
-        # display
         self.window.title.setFocus()
-        self.EditWindow.exec_()
 
 
 
     def hide(self):
         # clears all the fields then hides the window
-        self.title = ''
+        self.imdb_data = []
+        self.mal_data = []
         self.clear()
-        self.EditWindow.done(0)
+        self.CreateWindow.done(0)

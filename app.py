@@ -7,6 +7,7 @@ import windows.main as main
 import windows.edit as edit
 import windows.batch_edit as batch_edit
 import windows.create_delete as create_delete
+import windows.create as create
 
 # toher modules crreated by me
 import db_handler as db
@@ -40,6 +41,7 @@ class GUI:
         self.edit = edit.Edit()
         self.batch_edit = batch_edit.BatchEdit()
         self.create_delete = create_delete.CreateDelete()
+        self.create = create.Create()
 
         self.rows = []
 
@@ -66,8 +68,11 @@ class GUI:
         self.batch_edit.window.set.clicked.connect(self.set_batch_edit) # set button in batch edit window
         self.batch_edit.window.remove.clicked.connect(self.remove_batch_edit) # remove button in batch edit window
 
-        # from create and dlete window
+        # from create and delete window
         self.create_delete.window.submit_delete.clicked.connect(self.delete_entry) # submit button in create and delete window
+
+        # from create window
+        self.create.window.submit.clicked.connect(self.create_media)
 
 
 
@@ -173,10 +178,13 @@ class GUI:
         if pop_up.clickedButton().text() == '&Yes':
             for media_type in new:
                 for media in new[media_type]:
-                    if media_type == 'New': # new is not a real media type, so we can't pass it to edit.show()
-                        self.edit.show({})
-                    else:
-                        self.edit.show({'media_type': media_type})
+                    if media_type != 'New':
+                        old_path = util.to_path(media_type, media)
+                        new_path = util.to_path('New', media)
+                        util.move(old_path, new_path) # move them from where we found it to the new folder
+                    # scrape imdb or mal      MAKE SURE TITLE, ALT_TITLE, YEAR, AND DIRECTOR ARE '' AND NOT None
+                    # show create window with scraped data
+                    # reload main table
 
 
 
@@ -248,6 +256,20 @@ class GUI:
                 db.delete_field(key, entry)
         self.main.refresh()
         self.create_delete.hide()
+
+
+
+
+
+
+    # all create based functions
+    def create_media(self, old_title: str):
+        data = self.create.get_dict()
+        old_path = util.to_path('New', old_title)
+        new_path = util.to_path(data['media_type'], data['title'])
+        util.move(old_path, new_path)
+        db.enter(data)
+        self.create.hide()
 
 
 

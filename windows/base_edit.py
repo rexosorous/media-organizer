@@ -163,3 +163,35 @@ class BaseEdit:
         # converts a source to its list counterpart
         src_name = source.objectName() + '_list'
         return self.vars[src_name]
+
+
+
+    def get_dict(self) -> dict:
+        # returns a dict representing the fields in the window
+        data = {
+            'title': self.window.title.displayText(),
+            'alt_title': self.window.alt_title.displayText() if self.window.alt_title.displayText() else None,
+            'series': self.window.series_list.currentItem().text() if self.window.series_list.currentItem() else None,
+            'order': float(self.window.order.displayText()) if self.window.order.displayText() else None,
+            'media_type': self.window.media_type_list.currentItem().text() if self.window.media_type_list.currentItem() else None,
+            'animated': self.window.animated_yes.isChecked(),
+            'country': self.window.country_list.currentItem().text() if self.window.country_list.currentItem() else None,
+            'language': ', '.join([lang.text() for lang in self.window.language_list.selectedItems()]),
+            'subtitles': self.window.subtitles_yes.isChecked(),
+            'year': int(self.window.year.displayText()) if self.window.year.displayText() else None,
+            'genres': ', '.join([self.window.genres_yes_list.item(index).text() for index in range(self.window.genres_yes_list.count())]),
+            'director': self.window.director_list.currentItem().text() if self.window.director_list.currentItem() else None,
+            'studio': self.window.studio_list.currentItem().text() if self.window.studio_list.currentItem() else None,
+            'actors': ', '.join([self.window.actors_yes_list.item(index).text() for index in range(self.window.actors_yes_list.count())]),
+            'plot': self.window.plot.toPlainText() if self.window.plot.toPlainText() else None,
+            'rating': None,
+            'tags': ', '.join([self.window.tags_yes_list.item(index).text() for index in range(self.window.tags_yes_list.count())]),
+            'notes': self.window.notes.toPlainText() if self.window.notes.toPlainText() else None
+        }
+
+        for index in range(1, 6): # rating radio buttons
+            if self.vars['rating_' + str(index)].isChecked():
+                data['rating'] = index
+                break
+
+        return data

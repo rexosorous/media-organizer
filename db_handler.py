@@ -266,15 +266,14 @@ def delete_field(field: str, name: str):
 
 
 
-def enter(basic_info: dict, mtm_info = {}):
+def enter(info: dict):
     # enters in a media entry using info dict to fill fields
     # note 1: info dict MUST have the following fields: title, media_type, animated, country, subtitles
     # note 2: info dict can have missing fields that are not in the above
     # note 3: info dict must have database gets as values
     # note 4: mtm_info dict is optional values must be lists of database gets
 
-    # TODO
-    #   find a better way to handle mtm fields
+    basic_info, mtm_info = dict_fixer(info)
 
     try:
         m = Media.create(**basic_info)
