@@ -934,7 +934,7 @@ QListWidget::item:selected{color:black} </string>
              <color alpha="255">
               <red>0</red>
               <green>255</green>
-              <blue>0</blue>
+              <blue>255</blue>
              </color>
             </brush>
            </colorrole>
@@ -945,7 +945,7 @@ QListWidget::item:selected{color:black} </string>
              <color alpha="255">
               <red>0</red>
               <green>255</green>
-              <blue>0</blue>
+              <blue>255</blue>
              </color>
             </brush>
            </colorrole>

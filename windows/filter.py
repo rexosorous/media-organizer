@@ -43,6 +43,7 @@ class Filter(Base):
         # populates the filter screen's fields with what is selected in main table
         self.clear()
         self.populate()
+        self.window.and_filter.setChecked(True)
 
         # display
         self.FilterWindow.exec_()
@@ -53,6 +54,7 @@ class Filter(Base):
         # clears all the fields then hides the window
         self.title = ''
         self.clear()
+        self.window.and_filter.setChecked(True)
         self.FilterWindow.done(0)
 
 
@@ -93,9 +95,10 @@ class Filter(Base):
     def get_dict(self) -> dict:
         # returns a dict representing the fields in the window
         fields = [f for f in self.all_list_fields if f.endswith('yes')]
-        data = {
-            'rating': {'AND': [], 'NOT': [], 'OR': []},
-            }
+        basic_data = {}
+        and_data = {}
+        not_data = {}
+        or_data = {'rating': []}
 
         for field in fields:
             field_data = {
@@ -113,29 +116,35 @@ class Filter(Base):
                     field_data['NOT'].append(item.text())
                 elif item.background().color().getRgb() == self.blue:
                     field_data['OR'].append(item.text())
-            if field_data['AND'] or field_data['NOT'] or field_data['OR']: # if there's any data in the dict
-                data[field[:field.find('_yes')]] = field_data
+
+            fixed_field = field[:field.find('_yes')]
+            if field_data['AND']:
+                and_data[fixed_field] = field_data['AND']
+            if field_data['NOT']:
+                not_data[fixed_field] = field_data['NOT']
+            if field_data['OR']:
+                or_data[fixed_field] = field_data['OR']
 
 
-
-        for index in range(1, 6): # rating radio buttons
+        # rating checkboxes
+        for index in range(1, 6):
             if self.vars['rating_' + str(index)].isChecked():
-                data['rating']['OR'].append(index)
+                or_data['rating'].append(index)
         if self.window.rating_none.isChecked():
-            data['rating']['OR'].append('None')
-        if not data['rating']['OR']:
-            del data['rating']
+            or_data['rating'].append(None)
+        if not or_data['rating']:
+            del or_data['rating']
 
 
         if self.window.subtitles_yes.isChecked():
-            data['subtitles'] = True
+            basic_data['subtitles'] = True
         elif self.window.subtitles_no.isChecked():
-            data['subtitles'] = False
+            basic_data['subtitles'] = False
 
         if self.window.animated_yes.isChecked():
-            data['animated'] = True
+            basic_data['animated'] = True
         elif self.window.animated_no.isChecked():
-            data['animated'] = False
+            basic_data['animated'] = False
 
 
         year_text = self.window.year.displayText()
@@ -146,9 +155,9 @@ class Filter(Base):
         if self.window.year_equals.isChecked():
             year_text = '=' + year_text
         if year_text:
-            data['year'] = year_text
+            basic_data['year'] = year_text
 
-        return data
+        return [basic_data, and_data, not_data, or_data]
 
 
 

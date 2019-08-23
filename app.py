@@ -18,14 +18,13 @@ import utilities as util
 
 ''' TODO
     MOST IMPORTANT TODO: NAME IT MOEHUNTER
+    table right click menu (to delete and edit entries)
+    filter search bars should us +, -, / (maybe also &, !, |, \ ?)
     redo create_delete.py to work with base.py
-    clear radio buttons
     take a good look at db_handler module to see what can be made simpler or better
     pressing tab and shift-tab moves cursor to next area (select each radio button)
-    scan for deleted media
     settings to allow which columns are shown
     configs
-    reformat code so that windows.py files don't import db_handler?
     confirmation messages?
 '''
 
@@ -115,8 +114,8 @@ class GUI:
 
         # make sure to scan the new folder as well
         new_files = util.scan(['New'])
-        if new_files:
-            new.update(util.scan(['New'])) # util.scan returns a dict, so this is how we merge the keys and values of two dicts
+        if new_files['New']:
+            new.update(new_files) # util.scan returns a dict, so this is how we merge the keys and values of two dicts
 
         self.handle_missing(missing, startup)
         self.handle_new(new, startup)
@@ -260,7 +259,7 @@ class GUI:
         for key in data:
             for entry in data[key]:
                 db.delete_field(key, entry)
-        self.main.refresh()
+        self.main.refresh_table()
         self.create_delete.hide()
 
 
@@ -276,6 +275,7 @@ class GUI:
         new_path = util.to_path(data['media_type'], data['title'])
         util.move(old_path, new_path)
         db.enter(data)
+        self.create.hide()
 
 
 
@@ -284,9 +284,10 @@ class GUI:
 
     # all filter based functions
     def filter_media(self):
-        data = self.filter.get_dict()
-        for key in data:
-            print(f"{key}: {data[key]}")
+        basic_data, and_data, not_data, or_data = self.filter.get_dict()
+        table_data = db.get_filtered_table(basic_data, and_data, not_data, or_data)
+        self.main.clear_table()
+        self.main.filter_table(table_data)
         self.filter.hide()
 
 

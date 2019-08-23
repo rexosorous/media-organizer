@@ -152,6 +152,35 @@ def dict_fixer(data: dict) -> [dict, dict]:
 
 
 
+def to_expression(data: dict) -> list:
+    # converts a dict to a list of expressions
+    # ex. {'media_type': 'Movie'} -> [db.Media.media_type == db.MedaTypes.get(name='Movie')]
+    # requires that the input dicts get run through dict_fixer first
+    expr = []
+    for key in data:
+        if key == 'year':
+            symbol = data[key][0]
+            year = int(data[key][1:])
+            if symbol == '<':
+                expr.append((vars(Media)[key] < year))
+            elif symbol == '>':
+                expr.append((vars(Media)[key] > year))
+            elif symbol == '=':
+                expr.append((vars(Media)[key] == year))
+        else:
+            expr.append((vars(Media)[key] == data[key]))
+    return expr
+
+
+
+def to_list(data) -> list:
+    # if something isn't a list, make it into a list with one element
+    if isinstance(data, list):
+        return data
+    return [data]
+
+
+
 def get(table: str, torn: str): # torn = Title OR Name
     # returns an entry object from table = table with title or name = torn
     try:
@@ -216,6 +245,43 @@ def get_table() -> [dict]:
     for entry in Media.select():
         table.append(get_dict(entry))
     return table
+
+
+
+def get_filtered_table(basic_data: dict, and_data: dict, not_data: dict, or_data: dict) -> [dict]:
+    filtered = [] # return list
+
+    if basic_data:
+        expr = to_expression(basic_data) # convert basic_data dict into expressions to use in where() statement
+        initial = Media.select().where(*expr) # get all media entries where data matches and_basic
+    else:
+        initial = Media.select()
+
+    for media in initial: # convert to dictionaries because they're easier to work with
+        filtered.append(get_dict(media)) # fix this so all relevent data is a list?
+
+    filtered_copy = filtered.copy() # we make a copy so we can iterate over the copy and edit the original. because removing things while iterating "skips" entries
+    for media in filtered_copy:
+        if media in filtered: # prevents us from deleting something twice
+            for key in and_data:
+                media_data = to_list(media[key]) # we have to make this conversion for the next if statement, but we don't want to alter the media dict directly
+                if not all(item in media_data for item in and_data[key]): # if everything in and_data[key] is not in media_data, invalidate
+                    filtered.remove(media)
+                    break
+        if media in filtered:
+            for key in not_data:
+                media_data = to_list(media[key])
+                if any(item in not_data[key] for item in media_data): # if any item in not_data[key] is in media_data, invalidate
+                    filtered.remove(media)
+                    break
+        if media in filtered:
+            for key in or_data:
+                media_data = to_list(media[key])
+                if not any(item in media_data for item in or_data[key]): # if media_data does not contain any items in or_data[key], invalidate
+                    filtered.remove(media)
+                    break
+
+    return filtered
 
 
 

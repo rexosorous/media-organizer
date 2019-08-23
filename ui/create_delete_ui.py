@@ -1004,7 +1004,7 @@ class Ui_create_delete_window(object):
         self.gridLayout.addWidget(self.tab, 1, 1, 1, 1)
 
         self.retranslateUi(create_delete_window)
-        self.tab.setCurrentIndex(1)
+        self.tab.setCurrentIndex(0)
         QtCore.QMetaObject.connectSlotsByName(create_delete_window)
 
     def retranslateUi(self, create_delete_window):

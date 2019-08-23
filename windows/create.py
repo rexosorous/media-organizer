@@ -44,6 +44,7 @@ class Create(Base):
     def show(self, filename):
         self.title = filename
         self.window.title.setText(filename)
+        self.populate()
         self.connect_other_events()
         self.CreateWindow.exec_()
 
@@ -61,7 +62,10 @@ class Create(Base):
         self.imdb_data = imdb.search(self.window.title.displayText())
         self.rename_imdb_buttons() # rename the buttons with appropriate data
         for index in range(3):
-            self.vars['imdb_'+str(index)].clicked.connect(partial(self.repopulate, self.imdb_data[index]))
+            try:
+                self.vars['imdb_'+str(index)].clicked.connect(partial(self.repopulate, self.imdb_data[index]))
+            except:
+                pass
 
 
 
@@ -77,14 +81,17 @@ class Create(Base):
     def rename_imdb_buttons(self):
         # sets the text of each button to reflect some very basic info about that scraped data
         for index in range(3):
-            data = self.imdb_data[index]
-            display = [ 'Title: ' + data['title'],
-                        'Alt Title: ' + data['alt_title'],
-                        'Year: ' + data['year'],
-                        'Media Type: ' + data['media_type'],
-                        'Director: ' + data['director']]
-            text = '\n'.join(display)
-            self.vars['imdb_'+str(index)].setText(text)
+            try:
+                data = self.imdb_data[index]
+                display = [ 'Title: ' + data['title'],
+                            'Alt Title: ' + data['alt_title'],
+                            'Year: ' + data['year'],
+                            'Media Type: ' + data['media_type'],
+                            'Director: ' + data['director']]
+                text = '\n'.join(display)
+                self.vars['imdb_'+str(index)].setText(text)
+            except:
+                self.vars['imdb_'+str(index)].setText('could not find')
 
 
 

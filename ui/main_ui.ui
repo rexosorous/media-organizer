@@ -398,6 +398,13 @@
      </widget>
     </item>
     <item>
+     <widget class="QPushButton" name="clear_filter">
+      <property name="text">
+       <string>Clear Filter</string>
+      </property>
+     </widget>
+    </item>
+    <item>
      <widget class="QPushButton" name="edit_button">
       <property name="text">
        <string>EDIT</string>

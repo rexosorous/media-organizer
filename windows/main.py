@@ -43,6 +43,7 @@ class Main:
 
     def connect_events(self):
         self.window.table.cellDoubleClicked.connect(self.find_media) # opens a file's location when you double click an entry
+        self.window.clear_filter.clicked.connect(self.refresh_table)
         self.window.set_directory_button.triggered.connect(self.set_directory) # opens file explorer if you wanted to change the file directory
         self.window.refresh_button.triggered.connect(self.refresh_table) # refreshes the table
 
@@ -73,6 +74,17 @@ class Main:
     def populate_table(self):
         row = 0
         for entry in db.get_table():
+            self.window.table.insertRow(row)
+            for key in entry:
+                self.window.table.setItem(row, FIELD_NUM[key], QtWidgets.QTableWidgetItem(util.stringify(entry[key])))
+            row += 1
+
+
+
+    def filter_table(self, data):
+        # populates the filter with data instead of with db
+        row = 0
+        for entry in data:
             self.window.table.insertRow(row)
             for key in entry:
                 self.window.table.setItem(row, FIELD_NUM[key], QtWidgets.QTableWidgetItem(util.stringify(entry[key])))
