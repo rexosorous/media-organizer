@@ -1,11 +1,11 @@
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import Qt
 import ui.edit_ui as edit_ui
-from windows.base_edit import BaseEdit
+from windows.base import Base
 
 
 
-class Edit(BaseEdit):
+class Edit(Base):
     def __init__(self):
         super().__init__()
         self.EditWindow = QDialog()
@@ -20,6 +20,7 @@ class Edit(BaseEdit):
 
         # for creating drop down menus
         self.all_list_fields = ['genres_yes', 'genres_no', 'tags_yes', 'tags_no', 'series', 'actors_yes', 'actors_no', 'media_type', 'studio', 'director', 'country', 'language']
+        self.with_create = ['genres_yes', 'genres_no', 'tags_yes', 'tags_no', 'series', 'actors_yes', 'actors_no', 'media_type', 'studio', 'director', 'country', 'language']
         self.with_deselect = ['series', 'studio', 'director']
         self.with_remove_all = ['genres_yes', 'tags_yes', 'actors_yes']
 

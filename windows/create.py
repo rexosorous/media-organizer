@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import Qt
 from functools import partial
 import ui.create_ui as create_ui
-from windows.base_edit import BaseEdit
+from windows.base import Base
 
 # website scrapers
 import scrapers.mal_scraper as mal
@@ -10,13 +10,14 @@ import scrapers.imdb_scraper as imdb
 
 
 
-class Create(BaseEdit):
+class Create(Base):
     def __init__(self):
         super().__init__()
         self.CreateWindow = QDialog()
         self.window = create_ui.Ui_create_window()
         self.window.setupUi(self.CreateWindow)
         self.vars = vars(self.window)
+        self.title=''
 
         self.imdb_data = []
         self.mal_data =[]
@@ -27,6 +28,7 @@ class Create(BaseEdit):
 
         # for creating drop down menus
         self.all_list_fields = ['genres_yes', 'genres_no', 'tags_yes', 'tags_no', 'series', 'actors_yes', 'actors_no', 'media_type', 'studio', 'director', 'country', 'language']
+        self.with_create = ['genres_yes', 'genres_no', 'tags_yes', 'tags_no', 'series', 'actors_yes', 'actors_no', 'media_type', 'studio', 'director', 'country', 'language']
         self.with_deselect = ['series', 'studio', 'director']
         self.with_remove_all = ['genres_yes', 'tags_yes', 'actors_yes']
 
@@ -40,6 +42,7 @@ class Create(BaseEdit):
 
 
     def show(self, filename):
+        self.title = filename
         self.window.title.setText(filename)
         self.connect_other_events()
         self.CreateWindow.exec_()
@@ -50,9 +53,6 @@ class Create(BaseEdit):
         self.window.clear.clicked.connect(self.clear)
         self.window.imdb_scan.clicked.connect(self.scan_imdb)
         self.window.mal_scan.clicked.connect(self.scan_mal)
-        # for index in range(3): # imdb and mal buttons
-        #     self.vars['imdb_'+str(index)].clicked.connect(partial(self.repopulate, self.imdb_data[index]))
-        #     self.vars['mal_'+str(index)].clicked.connect(partial(self.repopulate, self.mal_data[index]))
 
 
 
@@ -146,6 +146,7 @@ class Create(BaseEdit):
 
     def hide(self):
         # clears all the fields then hides the window
+        self.title = ''
         self.imdb_data = []
         self.mal_data = []
         self.clear()

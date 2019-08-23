@@ -8,7 +8,7 @@ import db_handler as db
 
 
 
-class BaseEdit:
+class Base:
     def __init__(self):
         pass
 
@@ -17,31 +17,52 @@ class BaseEdit:
         # adds all the contents for lists
 
         # list adds
-        self.window.series_list.addItems(db.get_all('Series'))
-        self.window.director_list.addItems(db.get_all('Directors'))
-        self.window.studio_list.addItems(db.get_all('Studios'))
-        self.window.language_list.addItems(db.get_all('Languages'))
-        self.window.media_type_list.addItems(db.get_all('MediaTypes'))
-        self.window.country_list.addItems(db.get_all('Countries'))
+        try:
+            self.window.series_list.addItems(db.get_all('Series'))
+            self.window.director_list.addItems(db.get_all('Directors'))
+            self.window.studio_list.addItems(db.get_all('Studios'))
+            self.window.language_list.addItems(db.get_all('Languages'))
+            self.window.media_type_list.addItems(db.get_all('MediaTypes'))
+            self.window.country_list.addItems(db.get_all('Countries'))
+            #sorting
+            self.window.series_list.setSortingEnabled(True)
+            self.window.director_list.setSortingEnabled(True)
+            self.window.studio_list.setSortingEnabled(True)
+            self.window.language_list.setSortingEnabled(True)
+            self.window.media_type_list.setSortingEnabled(True)
+            self.window.country_list.setSortingEnabled(True)
+        except AttributeError: # some windows will split these lists into yes/no lists
+            self.window.series_no_list.addItems(db.get_all('Series'))
+            self.window.director_no_list.addItems(db.get_all('Directors'))
+            self.window.studio_no_list.addItems(db.get_all('Studios'))
+            self.window.language_no_list.addItems(db.get_all('Languages'))
+            self.window.media_type_no_list.addItems(db.get_all('MediaTypes'))
+            self.window.country_no_list.addItems(db.get_all('Countries'))
+            #sorting
+            self.window.series_no_list.setSortingEnabled(True)
+            self.window.director_no_list.setSortingEnabled(True)
+            self.window.studio_no_list.setSortingEnabled(True)
+            self.window.language_no_list.setSortingEnabled(True)
+            self.window.media_type_no_list.setSortingEnabled(True)
+            self.window.country_no_list.setSortingEnabled(True)
+            self.window.series_yes_list.setSortingEnabled(True)
+            self.window.director_yes_list.setSortingEnabled(True)
+            self.window.studio_yes_list.setSortingEnabled(True)
+            self.window.language_yes_list.setSortingEnabled(True)
+            self.window.media_type_yes_list.setSortingEnabled(True)
+            self.window.country_yes_list.setSortingEnabled(True)
 
         # many to many list adds
         self.window.genres_no_list.addItems(db.get_all('Genres'))
         self.window.tags_no_list.addItems(db.get_all('Tags'))
         self.window.actors_no_list.addItems(db.get_all('Actors'))
-
-        # sorting
-        self.window.series_list.setSortingEnabled(True)
-        self.window.director_list.setSortingEnabled(True)
-        self.window.studio_list.setSortingEnabled(True)
-        self.window.language_list.setSortingEnabled(True)
+        #sorting
         self.window.genres_yes_list.setSortingEnabled(True)
         self.window.genres_no_list.setSortingEnabled(True)
         self.window.tags_yes_list.setSortingEnabled(True)
         self.window.tags_no_list.setSortingEnabled(True)
         self.window.actors_yes_list.setSortingEnabled(True)
         self.window.actors_no_list.setSortingEnabled(True)
-        self.window.media_type_list.setSortingEnabled(True)
-        self.window.country_list.setSortingEnabled(True)
 
 
 
@@ -50,22 +71,27 @@ class BaseEdit:
         for field in self.all_clear_fields:
             self.vars[field].clear()
         for radio in self.all_radio_buttons:
+            self.vars[radio].setAutoExclusive(False)
             self.vars[radio].setChecked(False)
+            self.vars[radio].setAutoExclusive(False)
 
 
 
     def create_menus(self):
         # creates drop down menus for search bars
         for field in self.all_list_fields:
-            qlist = self.vars[field + '_list']
             button = self.vars[field + '_button']
+
             button.setMenu(QtWidgets.QMenu(button))
-            button.menu().addAction(QtWidgets.QAction('Create', button))
+
+            if field in self.with_create:
+                button.menu().addAction(QtWidgets.QAction('Create', button))
             if field in self.with_deselect:
                 button.menu().addAction(QtWidgets.QAction('Deselect', button))
             if field in self.with_remove_all:
                 button.menu().addAction(QtWidgets.QAction('Remove All', button))
-            button.menu().triggered[QtWidgets.QAction].connect(partial(self.filter_menu, qlist))
+
+            button.menu().triggered[QtWidgets.QAction].connect(partial(self.filter_menu, field))
             button.clicked.connect(partial(self.show_menu, button))
 
 
@@ -86,7 +112,7 @@ class BaseEdit:
 
 
 
-    def filter_menu(self, field, source):
+    def filter_menu(self, field: str, source):
         # filters which button is pressed in the drop down menu
         if source.text() == 'Create':
             self.create_field(field)
@@ -97,8 +123,9 @@ class BaseEdit:
 
 
 
-    def create_field(self, source):
+    def create_field(self, src):
         # creates a new field entry in db
+        source = self.vars[src + '_list']
         obj_name = source.objectName()
         data = self.vars[obj_name.replace('_list', '')].displayText()
         db.create(obj_name[:obj_name.find('_')], data)
@@ -106,14 +133,32 @@ class BaseEdit:
 
 
 
-    def deselect(self, source):
+    def deselect(self, src):
         # deselects an item in listwidget
-        source.setCurrentRow(-1)
+        if src == 'rating':
+            for addon in ['_none', '_1', '_2', '_3', '_4', '_5']:
+                self.vars[src+addon].setAutoExclusive(False)
+                self.vars[src+addon].setChecked(False)
+                self.vars[src+addon].setAutoExclusive(True)
+        elif src in ['subtitles', 'animated']:
+            for addon in ['_yes', '_no']:
+                self.vars[src+addon].setAutoExclusive(False)
+                self.vars[src+addon].setChecked(False)
+                self.vars[src+addon].setAutoExclusive(True)
+        elif src == 'year':
+            for addon in ['_greater', '_less', '_equals']:
+                self.vars[src+addon].setAutoExclusive(False)
+                self.vars[src+addon].setChecked(False)
+                self.vars[src+addon].setAutoExclusive(True)
+        else:
+            source = self.vars[src + '_list']
+            source.setCurrentRow(-1)
 
 
 
-    def list_transfer_all(self, source):
+    def list_transfer_all(self, src):
         # transfers all items from the yes side to the no side
+        source = self.vars[src + '_list']
         count = list(range(source.count()))
         count.reverse()
         for index in count:
@@ -141,9 +186,9 @@ class BaseEdit:
         contents = [field.item(index).text() for index in range(field.count())]
         for item in contents:
             if text.lower() in item.lower():
-                field.findItems(item, QtCore.Qt.MatchExactly)[0].setHidden(False)
+                field.findItems(item, Qt.MatchExactly)[0].setHidden(False)
             else:
-                field.findItems(item, QtCore.Qt.MatchExactly)[0].setHidden(True)
+                field.findItems(item, Qt.MatchExactly)[0].setHidden(True)
 
 
 
@@ -156,6 +201,7 @@ class BaseEdit:
                 if 'yes' in src.objectName() or 'no' in src.objectName():
                     self.list_transfer(src)
                 break
+        source.clear()
 
 
 

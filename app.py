@@ -8,6 +8,7 @@ import windows.edit as edit
 import windows.batch_edit as batch_edit
 import windows.create_delete as create_delete
 import windows.create as create
+import windows.filter as filterw # filter is a keyword
 
 # other modules crreated by me
 import db_handler as db
@@ -15,14 +16,10 @@ import utilities as util
 
 
 
-
 ''' TODO
     MOST IMPORTANT TODO: NAME IT MOEHUNTER
-    implement imdb and mal scrapers for new entries
-    take a look at submit_edit to see if we can input a db entry based on scrapers and edit it from there,
-        or if we have to make a new entry when submit is pressed. aka, can we get all required fields from scraping?
-        edit: no we can't make an entry based on scrapers because if we can't find it with scrapers,
-            then we need to enter everything from scratch and "editing" won't work that way.
+    redo create_delete.py to work with base.py
+    clear radio buttons
     take a good look at db_handler module to see what can be made simpler or better
     pressing tab and shift-tab moves cursor to next area (select each radio button)
     scan for deleted media
@@ -31,6 +28,7 @@ import utilities as util
     reformat code so that windows.py files don't import db_handler?
     confirmation messages?
 '''
+
 
 
 class GUI:
@@ -43,12 +41,14 @@ class GUI:
         self.batch_edit = batch_edit.BatchEdit()
         self.create_delete = create_delete.CreateDelete()
         self.create = create.Create()
+        self.filter = filterw.Filter()
 
         self.rows = []
 
         self.connect_events()
-
         self.main.MainWindow.show()
+        self.scan(True)
+
         exit(self.app.exec_())
 
 
@@ -59,6 +59,7 @@ class GUI:
 
         # from main window
         self.main.window.edit_button.clicked.connect(self.edit_show) # shows edit or batch edit window
+        self.main.window.filter_button.clicked.connect(self.filter.show) # shows the filter window
         self.main.window.create_delete_button.triggered.connect(self.create_delete.show) # shows create and delete window
         self.main.window.scan_button.triggered.connect(self.scan) # scans directory for missing and new files
 
@@ -75,6 +76,8 @@ class GUI:
         # from create window
         self.create.window.submit.clicked.connect(self.create_media)
 
+        # from filter window
+        self.filter.window.submit.clicked.connect(self.filter_media)
 
 
 
@@ -91,7 +94,7 @@ class GUI:
 
 
 
-    def scan(self):
+    def scan(self, startup = False):
         # scans directory for media folders and compares it to the database
         # if there's anything there that isn't in the database, ask to create a new entry
         # if there's anything missing, ask if they want the entries deleted in the database (or backup?)
@@ -115,21 +118,22 @@ class GUI:
         if new_files:
             new.update(util.scan(['New'])) # util.scan returns a dict, so this is how we merge the keys and values of two dicts
 
-        self.handle_missing(missing)
-        self.handle_new(new)
+        self.handle_missing(missing, startup)
+        self.handle_new(new, startup)
 
 
 
-    def handle_missing(self, missing: dict):
+    def handle_missing(self, missing: dict, startup: bool):
         # after scanning the directory, if there's any folders that should be there but aren't,
         # ask the user if they want the entries deleted in the database
         pop_up = QtWidgets.QMessageBox() # we want a dialog box regardless of what happens
         pop_up.setWindowTitle('Missing Files')
 
-        if not missing: # if nothing is missing
-            pop_up.setText('No folders are missing.')
-            pop_up.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            pop_up.exec_()
+        if not missing: # if there aren't any missing files
+            if not startup: # don't show the pop up if this is happening at startup
+                pop_up.setText('No folders are missing.')
+                pop_up.setStandardButtons(QtWidgets.QMessageBox.Ok)
+                pop_up.exec_()
             return
 
         # if things are missing
@@ -152,16 +156,17 @@ class GUI:
 
 
 
-    def handle_new(self, new: dict):
+    def handle_new(self, new: dict, startup: bool):
         # after scanning the directory, if there's any folders that don't appear in our database,
         # ask the user if they want to delete those folders or create a new database entry
         pop_up = QtWidgets.QMessageBox() # we want a dialog box regardless of what happens
         pop_up.setWindowTitle('New Files')
 
-        if not new: # if there are no new files
-            pop_up.setText('Did not find any new files.')
-            pop_up.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            pop_up.exec_()
+        if not new: # if there aren't any new files
+            if not startup: # don't show the pop up if this is happening at startup
+                pop_up.setText('Did not find any new files.')
+                pop_up.setStandardButtons(QtWidgets.QMessageBox.Ok)
+                pop_up.exec_()
             return
 
         # if there are new files
@@ -183,7 +188,8 @@ class GUI:
                         old_path = util.to_path(media_type, media_name)
                         new_path = util.to_path('New', media_name)
                         util.move(old_path, new_path) # move them from where we found it to the new folder
-                    self.create.show(media)
+                    self.create.show(media_name)
+                    self.create.hide()
         self.main.refresh_table()
 
 
@@ -263,13 +269,26 @@ class GUI:
 
 
     # all create based functions
-    def create_media(self, old_title: str):
+    def create_media(self):
+        old_title = self.create.title
         data = self.create.get_dict()
         old_path = util.to_path('New', old_title)
         new_path = util.to_path(data['media_type'], data['title'])
         util.move(old_path, new_path)
         db.enter(data)
-        self.create.hide()
+
+
+
+
+
+
+    # all filter based functions
+    def filter_media(self):
+        data = self.filter.get_dict()
+        for key in data:
+            print(f"{key}: {data[key]}")
+        self.filter.hide()
+
 
 
 

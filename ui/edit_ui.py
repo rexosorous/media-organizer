@@ -232,6 +232,7 @@ class Ui_edit_window(object):
         self.submit = QtWidgets.QPushButton(self.frame_3)
         self.submit.setMinimumSize(QtCore.QSize(50, 50))
         self.submit.setStyleSheet("background:rgb(0, 255, 0);")
+        self.submit.setAutoDefault(False)
         self.submit.setObjectName("submit")
         self.formLayout_3.setWidget(8, QtWidgets.QFormLayout.SpanningRole, self.submit)
         self.gridLayout.addWidget(self.frame_3, 1, 1, 1, 1)

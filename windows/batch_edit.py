@@ -1,10 +1,10 @@
 from PyQt5.QtWidgets import QDialog
 import ui.batch_edit_ui as batch_edit_ui
-from windows.base_edit import BaseEdit
+from windows.base import Base
 
 
 
-class BatchEdit(BaseEdit):
+class BatchEdit(Base):
     def __init__(self):
         super().__init__()
         self.BatchEditWindow = QDialog()
@@ -17,8 +17,9 @@ class BatchEdit(BaseEdit):
         self.search_bars = ['genres_yes', 'genres_no', 'tags_yes', 'tags_no', 'series', 'actors_yes', 'actors_no', 'media_type', 'studio', 'director', 'country', 'language']
 
         # for creating drop down menus
-        self.all_list_fields = ['genres_yes', 'genres_no', 'tags_yes', 'tags_no', 'series', 'actors_yes', 'actors_no', 'media_type', 'studio', 'director', 'country', 'language']
-        self.with_deselect = ['series', 'studio', 'director', 'media_type', 'country', 'language']
+        self.all_list_fields = ['genres_yes', 'genres_no', 'tags_yes', 'tags_no', 'series', 'actors_yes', 'actors_no', 'media_type', 'studio', 'director', 'country', 'language', 'rating', 'subtitles', 'animated']
+        self.with_create = ['genres_yes', 'genres_no', 'tags_yes', 'tags_no', 'series', 'actors_yes', 'actors_no', 'media_type', 'studio', 'director', 'country', 'language', 'rating', 'subtitles', 'animated']
+        self.with_deselect = ['series', 'studio', 'director', 'media_type', 'country', 'language', 'rating', 'subtitles', 'animated']
         self.with_remove_all = ['genres_yes', 'tags_yes', 'actors_yes']
 
         # for clearing fields

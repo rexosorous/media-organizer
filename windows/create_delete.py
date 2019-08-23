@@ -2,11 +2,11 @@ from PyQt5.QtWidgets import QDialog
 from functools import partial
 import db_handler as db
 import ui.create_delete_ui as create_delete_ui
-from windows.base_edit import BaseEdit
+from windows.base import Base
 
 
 
-class CreateDelete(BaseEdit):
+class CreateDelete(Base):
     def __init__(self):
         super().__init__()
         self.CreateDeleteWindow = QDialog()

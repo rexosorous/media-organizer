@@ -637,6 +637,9 @@ QListWidget::item:selected{color:black} </string>
         <property name="text">
          <string>Submit</string>
         </property>
+        <property name="autoDefault">
+         <bool>false</bool>
+        </property>
        </widget>
       </item>
      </layout>

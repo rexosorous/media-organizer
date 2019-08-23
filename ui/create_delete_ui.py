@@ -165,6 +165,7 @@ class Ui_create_delete_window(object):
         self.submit_create = QtWidgets.QPushButton(self.frame_4)
         self.submit_create.setMinimumSize(QtCore.QSize(50, 50))
         self.submit_create.setStyleSheet("background:rgb(0, 255, 0);")
+        self.submit_create.setAutoDefault(False)
         self.submit_create.setObjectName("submit_create")
         self.formLayout_4.setWidget(7, QtWidgets.QFormLayout.SpanningRole, self.submit_create)
         spacerItem = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -993,6 +994,7 @@ class Ui_create_delete_window(object):
         self.submit_delete = QtWidgets.QPushButton(self.frame_2)
         self.submit_delete.setMinimumSize(QtCore.QSize(50, 50))
         self.submit_delete.setStyleSheet("background:rgb(255, 0, 0);")
+        self.submit_delete.setAutoDefault(False)
         self.submit_delete.setObjectName("submit_delete")
         self.formLayout_2.setWidget(5, QtWidgets.QFormLayout.SpanningRole, self.submit_delete)
         spacerItem1 = QtWidgets.QSpacerItem(40, 20, QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Minimum)
@@ -1002,7 +1004,7 @@ class Ui_create_delete_window(object):
         self.gridLayout.addWidget(self.tab, 1, 1, 1, 1)
 
         self.retranslateUi(create_delete_window)
-        self.tab.setCurrentIndex(0)
+        self.tab.setCurrentIndex(1)
         QtCore.QMetaObject.connectSlotsByName(create_delete_window)
 
     def retranslateUi(self, create_delete_window):
