@@ -16,9 +16,9 @@ class Filter(Base):
 
         # colors
         self.normal = (120, 120, 120, 255)
-        self.green = (0, 255, 0, 255)
-        self.red = (255, 0, 0, 255)
-        self.blue = (0, 255, 255, 255)
+        self.green = (0, 255, 0, 255)   # AND
+        self.red = (255, 0, 0, 255)     # NOT
+        self.blue = (0, 255, 255, 255)  # OR
 
         # for events
         self.double_clicks = ['genres_yes_list', 'genres_no_list', 'actors_yes_list', 'actors_no_list', 'tags_yes_list', 'tags_no_list', 'series_yes_list', 'series_no_list', 'studio_yes_list', 'studio_no_list', 'director_yes_list', 'director_no_list', 'media_type_yes_list', 'media_type_no_list', 'country_yes_list', 'country_no_list', 'language_yes_list', 'language_no_list']
@@ -33,6 +33,11 @@ class Filter(Base):
         # for clearing fields
         self.all_clear_fields = self.double_clicks + self.search_bars + ['year']
         self.all_radio_buttons = ['rating_none', 'rating_1', 'rating_2', 'rating_3', 'rating_4', 'rating_5', 'year_less', 'year_greater', 'year_equals', 'animated_yes', 'animated_no', 'subtitles_yes', 'subtitles_no']
+
+        # for filtering
+        self.and_chars = ['+', '=', '&']
+        self.not_chars = ['-', '!']
+        self.or_chars = ['/', '|', '\\']
 
         self.create_menus()
         self.connect_events()
@@ -59,6 +64,21 @@ class Filter(Base):
 
 
 
+    def list_filter(self, source, text):
+        # filters through a list based on what is typed in the textbox
+        field = self.to_list(source)
+        contents = [field.item(index).text() for index in range(field.count())]
+        if text:
+            if text[0] in self.and_chars + self.not_chars + self.or_chars:
+                text = text[1:]
+        for item in contents:
+            if text.lower() in item.lower():
+                field.findItems(item, Qt.MatchExactly)[0].setHidden(False)
+            else:
+                field.findItems(item, Qt.MatchExactly)[0].setHidden(True)
+
+
+
     def list_transfer(self, source):
         # when a user double clicks an item in a mtm list view, transfer it to the other list
         # background of each item should change colors to reflect AND, NOT, OR filtering
@@ -68,13 +88,25 @@ class Filter(Base):
             src_name = src_name.replace('yes', 'no')
             selected.setBackground(QColor(*self.normal))
         else:
+            search = self.vars[src_name[:src_name.find('_list')]].displayText()
             src_name = src_name.replace('no', 'yes')
-            if src_name[:src_name.find('_yes')] in ['media_type', 'country', 'series', 'studio', 'director'] or self.window.or_filter.isChecked():
+
+            if src_name[:src_name.find('_yes')] in ['media_type', 'country', 'series', 'studio', 'director']: # forced OR fields
                 selected.setBackground(QColor(*self.blue))
+            elif search[0] in self.and_chars + self.not_chars + self.or_chars: # if there is a special char up front, ignore the radio button
+                if search[0] in self.and_chars:
+                    selected.setBackground(QColor(*self.green))
+                elif search[0] in self.not_chars:
+                    selected.setBackground(QColor(*self.red))
+                elif search[0] in self.or_chars:
+                    selected.setBackground(QColor(*self.blue))
+            # check the search bar for symbols
             elif self.window.and_filter.isChecked():
                 selected.setBackground(QColor(*self.green))
             elif self.window.not_filter.isChecked():
                 selected.setBackground(QColor(*self.red))
+            elif self.window.or_filter.isChecked():
+                selected.setBackground(QColor(*self.blue))
         self.vars[src_name].addItem(selected) # add the item to the opposite list
 
 

@@ -18,7 +18,6 @@ import utilities as util
 
 ''' TODO
     MOST IMPORTANT TODO: NAME IT MOEHUNTER
-    filter search bars should us +, -, / (maybe also &, !, |, \ ?)
     help messages in help toolbar, in window, or hovering?
     redo create_delete.py to work with base.py
     take a good look at db_handler module to see what can be made simpler or better
