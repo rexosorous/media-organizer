@@ -37,15 +37,25 @@ class Main:
 
         self.populate_table()
         self.resize_columns()
+        self.create_menus()
         self.connect_events()
+
+
+
+    def create_menus(self):
+        self.window.table.addAction(self.window.edit_action)
+        self.window.table.addAction(self.window.delete_action)
+        self.window.table.addAction(self.window.clear_filter_action)
 
 
 
     def connect_events(self):
         self.window.table.cellDoubleClicked.connect(self.find_media) # opens a file's location when you double click an entry
-        self.window.clear_filter.clicked.connect(self.refresh_table)
+        self.window.clear_filter_action.triggered.connect(self.refresh_table)
         self.window.set_directory_button.triggered.connect(self.set_directory) # opens file explorer if you wanted to change the file directory
         self.window.refresh_button.triggered.connect(self.refresh_table) # refreshes the table
+        self.window.delete_action.triggered.connect(self.delete)
+        self.window.search_bar.textChanged.connect(self.search_table)
 
 
 
@@ -81,6 +91,15 @@ class Main:
 
 
 
+    def clear_table(self):
+        self.window.search_bar.clear()
+        count = list(range(self.window.table.rowCount()))
+        count.reverse() # if we don't reverse and start deleting at 0, then everything gets shifted down a position during runtime
+        for index in count:
+            self.window.table.removeRow(index)
+
+
+
     def filter_table(self, data):
         # populates the filter with data instead of with db
         row = 0
@@ -92,11 +111,15 @@ class Main:
 
 
 
-    def clear_table(self):
-        count = list(range(self.window.table.rowCount()))
-        count.reverse() # if we don't reverse and start deleting at 0, then everything gets shifted down a position during runtime
-        for index in count:
-            self.window.table.removeRow(index)
+    def search_table(self):
+        # narrows down table with what is in search bar
+        contents = [[self.window.table.item(row, 0).text(), self.window.table.item(row, 1).text()] for row in range(self.window.table.rowCount())]
+        for index in range(len(contents)):
+            search = self.window.search_bar.displayText().lower()
+            if search in contents[index][0].lower() or search in contents[index][1].lower():
+                self.window.table.setRowHidden(index, False)
+            else:
+                self.window.table.setRowHidden(index, True)
 
 
 
@@ -156,3 +179,27 @@ class Main:
         data = self.get_table_selection()
         path = util.to_path(data['media_type'], data['title'])
         util.open(path)
+
+
+
+    def delete(self):
+        # deletes an entry or entries from the table, database, and hdd
+        selected = self.selected_rows()
+        titles = [self.window.table.item(row, 0).text() for row in selected]
+
+        pop_up = QtWidgets.QMessageBox() # we want to confirm that the user wants to delete those entries
+        pop_up.setWindowTitle('Confirm')
+        pop_up.setText('Are you sure you want to delete the selected media\nfrom both the database and your local storage?')
+        pop_up.setInformativeText('Click "Show Details" below to see what\n you\'re trying to delete')
+        pop_up.setDetailedText('\n'.join(titles))
+        pop_up.setStandardButtons(QtWidgets.QMessageBox.Yes|QtWidgets.QMessageBox.No)
+        pop_up.exec_()
+
+        if pop_up.clickedButton().text() == '&Yes':
+            db.delete_media(titles)
+            media_types = [self.window.table.item(row, 4).text() for row in selected]
+            for index in range(len(titles)):
+                util.recycle(media_types[index], titles[index])
+            selected.reverse()
+            for row in selected:
+                self.window.table.removeRow(row)

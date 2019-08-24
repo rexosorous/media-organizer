@@ -156,19 +156,22 @@ def to_expression(data: dict) -> list:
     # converts a dict to a list of expressions
     # ex. {'media_type': 'Movie'} -> [db.Media.media_type == db.MedaTypes.get(name='Movie')]
     # requires that the input dicts get run through dict_fixer first
+    # i couldn't figure out how to do this without hard coding
     expr = []
     for key in data:
         if key == 'year':
-            symbol = data[key][0]
-            year = int(data[key][1:])
+            symbol = data['year'][0]
+            year = int(data['year'][1:])
             if symbol == '<':
-                expr.append((vars(Media)[key] < year))
+                expr.append(Media.year < year)
             elif symbol == '>':
-                expr.append((vars(Media)[key] > year))
+                expr.append(Media.year > year)
             elif symbol == '=':
-                expr.append((vars(Media)[key] == year))
-        else:
-            expr.append((vars(Media)[key] == data[key]))
+                expr.append(Media.year == year)
+        elif key == 'subtitles':
+            expr.append(Media.subtitles == data['subtitles'])
+        elif key == 'animated':
+            expr.append(Media.animated == data['animated'])
     return expr
 
 
@@ -253,6 +256,7 @@ def get_filtered_table(basic_data: dict, and_data: dict, not_data: dict, or_data
 
     if basic_data:
         expr = to_expression(basic_data) # convert basic_data dict into expressions to use in where() statement
+        print(str(expr))
         initial = Media.select().where(*expr) # get all media entries where data matches and_basic
     else:
         initial = Media.select()

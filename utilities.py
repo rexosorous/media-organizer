@@ -1,5 +1,6 @@
 import os
 import config as cfg
+from send2trash import send2trash
 
 
 SPECIAL_COLON = '꞉' # windows does not allow real colons in file or folder names
@@ -57,3 +58,8 @@ def move(old_path, new_path):
 def open(path):
     # opens windows explorer to a movie selection
     os.startfile(path)
+
+
+
+def recycle(media_type: str, title: str):
+    send2trash(to_path(media_type, title))

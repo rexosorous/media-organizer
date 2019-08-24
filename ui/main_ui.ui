@@ -181,6 +181,9 @@
            </disabled>
           </palette>
          </property>
+         <property name="contextMenuPolicy">
+          <enum>Qt::ActionsContextMenu</enum>
+         </property>
          <property name="frameShape">
           <enum>QFrame::NoFrame</enum>
          </property>
@@ -397,20 +400,6 @@
       </layout>
      </widget>
     </item>
-    <item>
-     <widget class="QPushButton" name="clear_filter">
-      <property name="text">
-       <string>Clear Filter</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="edit_button">
-      <property name="text">
-       <string>EDIT</string>
-      </property>
-     </widget>
-    </item>
    </layout>
   </widget>
   <widget class="QMenuBar" name="menubar">
@@ -499,6 +488,21 @@
   <action name="actionLoad_Database">
    <property name="text">
     <string>Load Backup</string>
+   </property>
+  </action>
+  <action name="edit_action">
+   <property name="text">
+    <string>Edit</string>
+   </property>
+  </action>
+  <action name="delete_action">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+  </action>
+  <action name="clear_filter_action">
+   <property name="text">
+    <string>Clear Filter</string>
    </property>
   </action>
  </widget>

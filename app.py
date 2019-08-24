@@ -18,8 +18,8 @@ import utilities as util
 
 ''' TODO
     MOST IMPORTANT TODO: NAME IT MOEHUNTER
-    table right click menu (to delete and edit entries)
     filter search bars should us +, -, / (maybe also &, !, |, \ ?)
+    help messages in help toolbar, in window, or hovering?
     redo create_delete.py to work with base.py
     take a good look at db_handler module to see what can be made simpler or better
     pressing tab and shift-tab moves cursor to next area (select each radio button)
@@ -57,7 +57,7 @@ class GUI:
         # note: we only connect events here that require access to classes outside of the source.
 
         # from main window
-        self.main.window.edit_button.clicked.connect(self.edit_show) # shows edit or batch edit window
+        self.main.window.edit_action.triggered.connect(self.edit_show) # shows edit or batch edit window
         self.main.window.filter_button.clicked.connect(self.filter.show) # shows the filter window
         self.main.window.create_delete_button.triggered.connect(self.create_delete.show) # shows create and delete window
         self.main.window.scan_button.triggered.connect(self.scan) # scans directory for missing and new files
