@@ -1655,6 +1655,9 @@ QListWidget::item:selected{color:black} </string>
            <property name="text">
             <string>Yes</string>
            </property>
+           <attribute name="buttonGroup">
+            <string notr="true">buttonGroup_3</string>
+           </attribute>
           </widget>
          </item>
          <item>
@@ -1662,6 +1665,9 @@ QListWidget::item:selected{color:black} </string>
            <property name="text">
             <string>No</string>
            </property>
+           <attribute name="buttonGroup">
+            <string notr="true">buttonGroup_3</string>
+           </attribute>
           </widget>
          </item>
         </layout>
@@ -1878,6 +1884,9 @@ QListWidget::item:selected{color:black} </string>
               <property name="text">
                <string>None</string>
               </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup</string>
+              </attribute>
              </widget>
             </item>
             <item>
@@ -1885,6 +1894,9 @@ QListWidget::item:selected{color:black} </string>
               <property name="text">
                <string>1</string>
               </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup</string>
+              </attribute>
              </widget>
             </item>
             <item>
@@ -1892,6 +1904,9 @@ QListWidget::item:selected{color:black} </string>
               <property name="text">
                <string>2</string>
               </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup</string>
+              </attribute>
              </widget>
             </item>
             <item>
@@ -1899,6 +1914,9 @@ QListWidget::item:selected{color:black} </string>
               <property name="text">
                <string>3</string>
               </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup</string>
+              </attribute>
              </widget>
             </item>
             <item>
@@ -1906,6 +1924,9 @@ QListWidget::item:selected{color:black} </string>
               <property name="text">
                <string>4</string>
               </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup</string>
+              </attribute>
              </widget>
             </item>
             <item>
@@ -1913,6 +1934,9 @@ QListWidget::item:selected{color:black} </string>
               <property name="text">
                <string>5</string>
               </property>
+              <attribute name="buttonGroup">
+               <string notr="true">buttonGroup</string>
+              </attribute>
              </widget>
             </item>
            </layout>
@@ -2155,6 +2179,9 @@ QListWidget::item:selected{color:black} </string>
            <property name="text">
             <string>Yes</string>
            </property>
+           <attribute name="buttonGroup">
+            <string notr="true">buttonGroup_2</string>
+           </attribute>
           </widget>
          </item>
          <item>
@@ -2162,6 +2189,9 @@ QListWidget::item:selected{color:black} </string>
            <property name="text">
             <string>No</string>
            </property>
+           <attribute name="buttonGroup">
+            <string notr="true">buttonGroup_2</string>
+           </attribute>
           </widget>
          </item>
         </layout>
@@ -2645,4 +2675,9 @@ QListWidget::item:selected{color:black} </string>
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+  <buttongroup name="buttonGroup_2"/>
+  <buttongroup name="buttonGroup_3"/>
+ </buttongroups>
 </ui>

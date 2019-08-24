@@ -50,12 +50,18 @@ class Main:
 
 
     def connect_events(self):
-        self.window.table.cellDoubleClicked.connect(self.find_media) # opens a file's location when you double click an entry
-        self.window.clear_filter_action.triggered.connect(self.refresh_table)
-        self.window.set_directory_button.triggered.connect(self.set_directory) # opens file explorer if you wanted to change the file directory
-        self.window.refresh_button.triggered.connect(self.refresh_table) # refreshes the table
-        self.window.delete_action.triggered.connect(self.delete)
         self.window.search_bar.textChanged.connect(self.search_table)
+
+        # table related
+        self.window.table.cellDoubleClicked.connect(self.find_media) # opens a file's location when you double click an entry
+        self.window.delete_action.triggered.connect(self.delete) # deletes selected media
+        self.window.clear_filter_action.triggered.connect(self.refresh_table) # clears any filters that may apply
+
+        # top-bar menus
+        self.window.set_directory_button.triggered.connect(self.set_directory) # opens file explorer if you wanted to change the file directory
+        self.window.backup_button.triggered.connect(self.backup_database)
+        self.window.load_button.triggered.connect(self.load_database)
+        self.window.refresh_button.triggered.connect(self.refresh_table) # refreshes the table
 
 
 
@@ -82,12 +88,14 @@ class Main:
 
 
     def populate_table(self):
+        self.window.table.setSortingEnabled(False)
         row = 0
         for entry in db.get_table():
             self.window.table.insertRow(row)
             for key in entry:
                 self.window.table.setItem(row, FIELD_NUM[key], QtWidgets.QTableWidgetItem(util.stringify(entry[key])))
             row += 1
+        self.window.table.setSortingEnabled(True)
 
 
 
@@ -102,12 +110,14 @@ class Main:
 
     def filter_table(self, data):
         # populates the filter with data instead of with db
+        self.window.table.setSortingEnabled(False)
         row = 0
         for entry in data:
             self.window.table.insertRow(row)
             for key in entry:
                 self.window.table.setItem(row, FIELD_NUM[key], QtWidgets.QTableWidgetItem(util.stringify(entry[key])))
             row += 1
+        self.window.table.setSortingEnabled(True)
 
 
 
@@ -167,7 +177,7 @@ class Main:
     def set_directory(self):
         # opens file explorer if you wanted to change the file directory
         options = QtWidgets.QFileDialog.Options()
-        directory = QtWidgets.QFileDialog.getExistingDirectory(self.MainWindow, "QtWidgets.QFileDialog.getOpenFileName()", options=options)
+        directory = QtWidgets.QFileDialog.getExistingDirectory(self.MainWindow, "Set Directory", options=options)
         if directory:
             cfg.directory = directory
             self.scan()
@@ -178,7 +188,7 @@ class Main:
         # opens a file's location when you double click an entry
         data = self.get_table_selection()
         path = util.to_path(data['media_type'], data['title'])
-        util.open(path)
+        util.open_file(path)
 
 
 
@@ -203,3 +213,18 @@ class Main:
             selected.reverse()
             for row in selected:
                 self.window.table.removeRow(row)
+
+
+
+    def backup_database(self):
+        options = QtWidgets.QFileDialog.Options()
+        filename, _ = QtWidgets.QFileDialog.getSaveFileName(self.MainWindow, "Backup Database", "database", "Database Files (*.db)", options=options)
+        util.copy_database(filename)
+
+
+
+    def load_database(self):
+        options = QtWidgets.QFileDialog.Options()
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(self.MainWindow, "Load Database", "database", "Database Files (*.db)", options=options)
+        print('loading database not implemented yet')
+        # db.load_database(filename)

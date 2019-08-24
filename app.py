@@ -19,6 +19,7 @@ import utilities as util
 ''' TODO
     MOST IMPORTANT TODO: NAME IT MOEHUNTER
     help messages in help toolbar, in window, or hovering?
+    create qactions in qt designer rather than in code
     redo create_delete.py to work with base.py
     take a good look at db_handler module to see what can be made simpler or better
     pressing tab and shift-tab moves cursor to next area (select each radio button)
@@ -299,3 +300,4 @@ class GUI:
 
 if __name__ == "__main__":
     GUI()
+    db.db.close()

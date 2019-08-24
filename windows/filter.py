@@ -89,6 +89,9 @@ class Filter(Base):
             selected.setBackground(QColor(*self.normal))
         else:
             search = self.vars[src_name[:src_name.find('_list')]].displayText()
+            if not search:
+                search = 'lorem ipsum'
+
             src_name = src_name.replace('no', 'yes')
 
             if src_name[:src_name.find('_yes')] in ['media_type', 'country', 'series', 'studio', 'director']: # forced OR fields

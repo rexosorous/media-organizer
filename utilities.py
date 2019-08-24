@@ -1,6 +1,8 @@
 import os
+import shutil
 import config as cfg
 from send2trash import send2trash
+import json
 
 
 SPECIAL_COLON = '꞉' # windows does not allow real colons in file or folder names
@@ -51,13 +53,21 @@ def to_path(media_type: str, title: str):
 
 def move(old_path, new_path):
     # moves and/or renames a file if it's title or media type are changed
-    os.rename(old_path, new_path)
+    shutil.move(old_path, new_path)
 
 
 
-def open(path):
+def open_file(path):
     # opens windows explorer to a movie selection
     os.startfile(path)
+
+
+
+def copy_database(new):
+    with open('configs.json', 'r') as file:
+        x = json.load(file)
+        original = x['database']
+    shutil.copy(original, new)
 
 
 

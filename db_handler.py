@@ -3,6 +3,7 @@
 import peewee
 from playhouse import shortcuts
 import config as cfg
+# import json
 
 
 
@@ -12,7 +13,17 @@ import config as cfg
 ################# DATABASE TABLE STUFF #################
 ########################################################
 
-db = peewee.SqliteDatabase('media.db', pragmas={
+
+# database_file = ''
+
+
+# with open('configs.json', 'r') as file:
+#     x = json.load(file)
+#     database_file = x['database']
+
+
+
+db = peewee.SqliteDatabase('database\\media.db', pragmas={
     'journal_mode': 'wal',
     'cache_size': -1 * 64000,
     'foreign_keys': 1,
@@ -256,7 +267,6 @@ def get_filtered_table(basic_data: dict, and_data: dict, not_data: dict, or_data
 
     if basic_data:
         expr = to_expression(basic_data) # convert basic_data dict into expressions to use in where() statement
-        print(str(expr))
         initial = Media.select().where(*expr) # get all media entries where data matches and_basic
     else:
         initial = Media.select()

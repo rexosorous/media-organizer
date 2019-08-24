@@ -418,8 +418,8 @@
     <addaction name="set_directory_button"/>
     <addaction name="scan_button"/>
     <addaction name="separator"/>
-    <addaction name="actionBackup_Directory"/>
-    <addaction name="actionLoad_Database"/>
+    <addaction name="backup_button"/>
+    <addaction name="load_button"/>
    </widget>
    <widget class="QMenu" name="menuOptions">
     <property name="title">
@@ -480,12 +480,12 @@
     <string>Scan Directory</string>
    </property>
   </action>
-  <action name="actionBackup_Directory">
+  <action name="backup_button">
    <property name="text">
     <string>Backup Database</string>
    </property>
   </action>
-  <action name="actionLoad_Database">
+  <action name="load_button">
    <property name="text">
     <string>Load Backup</string>
    </property>
