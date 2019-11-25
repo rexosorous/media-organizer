@@ -18,6 +18,7 @@ def search(anime: str):
     actors = db.get_all('Actors')
     studios = db.get_all('Studios')
 
+
     # convert the dicts gotten from scraper into readable dicts we can use
     for anime in search_results:
         info = {
@@ -28,7 +29,7 @@ def search(anime: str):
             'language': 'Japanese',
             'subtitles': True,
             'year': anime[0]['aired']['from'][:4],
-            'genres': [g['name'] for g in genres if g in anime[0]['genres']],
+            'genres': [g['name'] for g in anime[0]['genres'] if g['name'] in genres],
             'actors': [],
             'plot': anime[0]['synopsis']
         }

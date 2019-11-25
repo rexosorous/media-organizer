@@ -189,7 +189,7 @@ class GUI:
                         util.move(old_path, new_path) # move them from where we found it to the new folder
                     self.create.show(media_name)
                     self.create.hide()
-        self.main.refresh_table()
+            self.main.refresh_table()
 
 
 
@@ -300,4 +300,3 @@ class GUI:
 
 if __name__ == "__main__":
     GUI()
-    db.db.close()

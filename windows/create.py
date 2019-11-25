@@ -60,10 +60,14 @@ class Create(Base):
     def scan_imdb(self):
         # when a scan button is pressed, search for the 3 most likely results from whatever is in the title field
         self.imdb_data = imdb.search(self.window.title.displayText())
+        for index in self.imdb_data:
+            for key in index:
+                if not index[key]:
+                    index[key] = ''
         self.rename_imdb_buttons() # rename the buttons with appropriate data
         for index in range(3):
             try:
-                self.vars['imdb_'+str(index)].clicked.connect(partial(self.repopulate, self.imdb_data[index]))
+                self.vars['imdb_'+str(index+1)].clicked.connect(partial(self.repopulate, self.imdb_data[index]))
             except:
                 pass
 
@@ -72,9 +76,15 @@ class Create(Base):
     def scan_mal(self):
         # when a scan button is pressed, search for the 3 most likely results from whatever is in the title field
         self.mal_data = mal.search(self.window.title.displayText())
+
+        for index in self.mal_data:
+            for key in index:
+                if not index[key]:
+                    index[key] = ''
+
         self.rename_mal_buttons() # rename the buttons with appropriate data
         for index in range(3):
-            self.vars['mal_'+str(index)].clicked.connect(partial(self.repopulate, self.mal_data[index]))
+            self.vars['mal_'+str(index+1)].clicked.connect(partial(self.repopulate, self.mal_data[index]))
 
 
 
@@ -89,9 +99,9 @@ class Create(Base):
                             'Media Type: ' + data['media_type'],
                             'Director: ' + data['director']]
                 text = '\n'.join(display)
-                self.vars['imdb_'+str(index)].setText(text)
+                self.vars['imdb_'+str(index+1)].setText(text)
             except:
-                self.vars['imdb_'+str(index)].setText('could not find')
+                self.vars['imdb_'+str(index+1)].setText('could not find')
 
 
 
@@ -105,7 +115,7 @@ class Create(Base):
                         'Media Type: ' + data['media_type'],
                         'Director: ' + data['director']]
             text = '\n'.join(display)
-            self.vars['mal_'+str(index)].setText(text)
+            self.vars['mal_'+str(index+1)].setText(text)
 
 
 
@@ -113,6 +123,9 @@ class Create(Base):
         # populates the create screen's fields with information scraped from imdb or myanimelist
         self.clear()
         self.populate()
+
+        # for key in scraped_info:
+        #     print(f'{key}: {scraped_info[key]}')
 
         for key in scraped_info:
             if key in ['title', 'alt_title', 'order', 'year', 'plot', 'notes']: # text fields
@@ -124,9 +137,8 @@ class Create(Base):
                     self.vars[field].setCurrentItem(highlight[0])
             elif key == 'language': # multi select lists
                 if scraped_info['language']:
-                    for lang in scraped_info['language']:
-                        highlight = self.window.language_list.findItems(lang, Qt.MatchExactly)
-                        highlight[0].setSelected(True)
+                    highlight = self.window.language_list.findItems(scraped_info['language'], Qt.MatchExactly)
+                    highlight[0].setSelected(True)
             elif key == 'rating':
                 try:
                     field = 'rating_' + scraped_info['rating']
@@ -135,7 +147,7 @@ class Create(Base):
                     self.window.rating_none.setChecked(True)
             elif key in ['animated', 'subtitles']:
                 field = key + '_no'
-                if scraped_info[key] == 'True':
+                if scraped_info[key]:
                     field = key + '_yes'
                 self.vars[field].setChecked(True)
             elif key in ['genres', 'actors', 'tags']:

@@ -21,6 +21,11 @@ import config as cfg
 #     x = json.load(file)
 #     database_file = x['database']
 
+# maybe try making this into a class and making an object of this.
+# in the init, we ask which database file to load
+# and when we want to load a new database file during runtime,
+# we can create a new db_handler object
+
 
 
 db = peewee.SqliteDatabase('database\\media.db', pragmas={
